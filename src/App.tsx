@@ -126,12 +126,7 @@ const askAIAssistant = async (question: string, language: string = 'en'): Promis
 
 const THEME_PRESETS: Record<string, { bg: string; meta: string; isDark: boolean }> = {
   light: { bg: '#ffffff', meta: '#ffffff', isDark: false },
-  dark: { bg: '#0f172a', meta: '#0f172a', isDark: true },
-  blue: { bg: '#1e3a5f', meta: '#1e3a5f', isDark: true },
-  green: { bg: '#14532d', meta: '#14532d', isDark: true },
-  purple: { bg: '#4c1d95', meta: '#4c1d95', isDark: true },
-  orange: { bg: '#7c2d12', meta: '#7c2d12', isDark: true },
-  rose: { bg: '#4c0519', meta: '#4c0519', isDark: true },
+  dark: { bg: '#000000', meta: '#000000', isDark: true },
 };
 
 const ACCENT_COLOR_HEX: Record<string, string> = {

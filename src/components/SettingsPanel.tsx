@@ -58,13 +58,8 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
     ];
 
     const themeOptions = [
-        { id: 'light', name: t('Light'), colors: ['#ffffff', '#f1f5f9', '#3b82f6'] },
-        { id: 'dark', name: t('Dark'), colors: ['#0f172a', '#1e293b', '#3b82f6'] },
-        { id: 'blue', name: t('Ocean Blue'), colors: ['#1e3a5f', '#2563eb', '#60a5fa'] },
-        { id: 'green', name: t('Forest'), colors: ['#14532d', '#22c55e', '#86efac'] },
-        { id: 'purple', name: t('Royal'), colors: ['#4c1d95', '#8b5cf6', '#c4b5fd'] },
-        { id: 'orange', name: t('Sunset'), colors: ['#7c2d12', '#f97316', '#fed7aa'] },
-        { id: 'rose', name: t('Rose'), colors: ['#4c0519', '#f43f5e', '#fda4af'] },
+        { id: 'light', name: t('Light'), colors: ['#ffffff', '#000000', '#000000'] },
+        { id: 'dark', name: t('Dark'), colors: ['#000000', '#ffffff', '#ffffff'] },
         { id: 'auto', name: t('Auto'), colors: ['#1e293b', '#ffffff', '#8b5cf6'] },
     ];
 

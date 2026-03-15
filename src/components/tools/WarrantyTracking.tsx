@@ -228,6 +228,17 @@ export const WarrantyTracking: React.FC<{ isDark: boolean; t: (key: string) => s
                       <button onClick={handleSubmit} className="w-full py-3.5 bg-emerald-500 text-white rounded-xl font-bold shadow-lg shadow-emerald-500/30 active:scale-95 transition-all mt-4">
                           {editingId ? 'Update Warranty' : 'Activate Warranty'}
                       </button>
+                      {editingId && (
+                          <button 
+                              onClick={() => {
+                                  setWarranties(warranties.filter(w => w.id !== editingId));
+                                  setIsModalOpen(false);
+                              }} 
+                              className="w-full py-3.5 bg-red-500 text-white rounded-xl font-bold shadow-lg shadow-red-500/30 active:scale-95 transition-all mt-2"
+                          >
+                              Delete Warranty
+                          </button>
+                      )}
                   </div>
               </div>
           </div>
