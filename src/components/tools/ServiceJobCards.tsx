@@ -1,6 +1,7 @@
 import VoiceInput from '../VoiceInput';
 import React, { useState, useMemo } from 'react';
 import { ArrowLeft, ClipboardList, Plus, Search, X, User, Edit2, PenTool, CheckCircle, Clock } from 'lucide-react';
+import { globalToast } from '../../lib/globalToast';
 
 export interface JobCard {
     id: number;
@@ -282,7 +283,7 @@ export const ServiceJobCards: React.FC<{ isDark: boolean; t: (key: string) => st
                                          }
                                       });
                                   }
-                                  alert(`Job ${jcNum} sent to Invoice Builder! Open the "Invoice Pro" tool to automatically generate the bill.`);
+                                  globalToast(`Job ${jcNum} sent to Invoice Builder! Open "Invoice Pro" to generate the bill.`, 'success');
                                   setIsModalOpen(false);
                               }}
                               className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-md active:scale-95 transition-all mt-2"

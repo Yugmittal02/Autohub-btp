@@ -12,15 +12,16 @@ import {
   ChevronUp, ChevronDown, ArrowRight,
   ArrowRight as ArrowRightIcon,
   ArrowLeft as ArrowLeftIcon,
-  Copy, Layers, Ban, Store, Zap, XCircle, AlertCircle,
+  Copy, Layers, Ban, Store, Zap, XCircle, AlertCircle, Info,
   FileText, HelpCircle, Phone, MessageSquare, ExternalLink, Shield,
   Calculator, Percent, CreditCard, StickyNote, Briefcase, Image as ImageIcon,
   Share2, Calendar, MoreVertical, History, RefreshCcw, DollarSign,
   Pin, PinOff, PenTool, Highlighter, Circle as CircleIcon, Eraser, Type,
-  RefreshCw, RotateCcw, Printer, FilePlus, Send,
+  RefreshCw, RotateCcw, Printer, FilePlus, Send, Eye, ToggleLeft, ToggleRight,
   Bold, Italic, Underline, Clock, Package,
   PackageX, TrendingDown, Tag, Vibrate, Activity, ScanBarcode, BarChart2,
   PieChart, Users, ShoppingCart, TrendingUp, FileMinus, ArrowUp, Home } from 'lucide-react';
+import type { StaffPermissions } from './types';
 
 // --- MODULE IMPORTS ---
 import { AIEngine, Trie, PriorityQueue, BloomFilter, fuzzySearch, LRUCache } from './lib/ai-engine';
@@ -948,24 +949,81 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 }
 
-const ToastMessage = ({ message, type, onClose }) => {
+// === DEFAULT STAFF PERMISSIONS ===
+const DEFAULT_STAFF_PERMISSIONS: StaffPermissions = {
+  canChangeQty: false,
+  canViewKhata: false,
+  canViewSupplier: false,
+  canViewAnalytics: false,
+  canViewMargin: false,
+  canViewStockValue: false,
+  canViewImport: false,
+  canViewSales: false,
+  canViewPendingDue: false,
+  canAddItems: true,
+  canDeleteItems: false,
+  canEditItems: false,
+  canViewCRM: false,
+  canViewJobCards: true,
+};
+
+// === STAFF PERMISSION LABELS ===
+const STAFF_PERMISSION_LABELS: { key: keyof StaffPermissions; label: string; icon: any; desc: string; color: string }[] = [
+  { key: 'canChangeQty', label: 'Quantity Changes', icon: Package, desc: 'Staff can use +/- buttons', color: 'from-blue-500 to-cyan-500' },
+  { key: 'canAddItems', label: 'Add New Items', icon: Plus, desc: 'Staff can add entries', color: 'from-green-500 to-emerald-500' },
+  { key: 'canEditItems', label: 'Edit Items', icon: Edit, desc: 'Staff can edit item names', color: 'from-indigo-500 to-blue-500' },
+  { key: 'canDeleteItems', label: 'Delete Items', icon: Trash2, desc: 'Staff can delete entries', color: 'from-red-500 to-rose-500' },
+  { key: 'canViewSales', label: 'Sales Data', icon: TrendingUp, desc: 'Today\'s sales & revenue', color: 'from-emerald-500 to-teal-500' },
+  { key: 'canViewPendingDue', label: 'Pending Dues', icon: CreditCard, desc: 'Udhaar/due amounts', color: 'from-orange-500 to-amber-500' },
+  { key: 'canViewKhata', label: 'Customer Khata', icon: FileText, desc: 'Customer credit records', color: 'from-purple-500 to-violet-500' },
+  { key: 'canViewSupplier', label: 'Supplier Ledger', icon: Package, desc: 'Vendor payment data', color: 'from-rose-500 to-pink-500' },
+  { key: 'canViewAnalytics', label: 'Analytics', icon: BarChart2, desc: 'Business analytics', color: 'from-indigo-500 to-purple-500' },
+  { key: 'canViewMargin', label: 'Profit Analyzer', icon: Calculator, desc: 'Margins & markup', color: 'from-fuchsia-500 to-pink-500' },
+  { key: 'canViewStockValue', label: 'Stock Value', icon: Activity, desc: 'Inventory worth', color: 'from-cyan-500 to-blue-500' },
+  { key: 'canViewImport', label: 'Data Import', icon: Download, desc: 'CSV/Excel import', color: 'from-teal-500 to-cyan-500' },
+  { key: 'canViewCRM', label: 'Customer CRM', icon: Users, desc: 'Client directory', color: 'from-blue-500 to-indigo-500' },
+  { key: 'canViewJobCards', label: 'Job Cards', icon: FileText, desc: 'Service & repairs', color: 'from-orange-500 to-red-500' },
+];
+
+// === VIBRATION HELPER ===
+const haptic = (pattern: number | number[] = 50) => {
+  try { if (navigator.vibrate) navigator.vibrate(pattern); } catch {}
+};
+
+// === ENHANCED TOAST SYSTEM ===
+const ToastMessage = ({ message, type, onClose, duration = 3000 }) => {
+  const [exiting, setExiting] = useState(false);
+
   useEffect(() => {
-    const timer = setTimeout(onClose, 3000);
+    const timer = setTimeout(() => {
+      setExiting(true);
+      setTimeout(onClose, 250);
+    }, duration);
     return () => clearTimeout(timer);
-  }, [onClose]);
+  }, [onClose, duration]);
+
+  useEffect(() => {
+    haptic(type === 'error' ? [100, 50, 100] : 40);
+  }, []);
+
+  const config = {
+    success: { bg: 'bg-emerald-600/95', border: 'border-emerald-400/30', shadow: 'shadow-emerald-500/25', icon: <CheckCircle size={18} />, iconBg: 'bg-emerald-500' },
+    error:   { bg: 'bg-red-600/95', border: 'border-red-400/30', shadow: 'shadow-red-500/25', icon: <XCircle size={18} />, iconBg: 'bg-red-500' },
+    warning: { bg: 'bg-amber-600/95', border: 'border-amber-400/30', shadow: 'shadow-amber-500/25', icon: <AlertTriangle size={18} />, iconBg: 'bg-amber-500' },
+    info:    { bg: 'bg-blue-600/95', border: 'border-blue-400/30', shadow: 'shadow-blue-500/25', icon: <Info size={18} />, iconBg: 'bg-blue-500' },
+  }[type] || { bg: 'bg-emerald-600/95', border: 'border-emerald-400/30', shadow: 'shadow-emerald-500/25', icon: <CheckCircle size={18} />, iconBg: 'bg-emerald-500' };
 
   return (
-    <div className={`fixed top-6 left-1/2 -translate-x-1/2 px-6 py-3 rounded-2xl shadow-2xl z-[100] flex items-center gap-3 transition-all transform border backdrop-blur-sm ${type === 'error'
-      ? 'bg-red-600/95 text-white border-red-400/30 shadow-red-500/25'
-      : 'bg-green-600/95 text-white border-green-400/30 shadow-green-500/25'
-      }`} style={{ animation: 'slideDown 0.3s ease-out' }}>
-      <div className={`p-1.5 rounded-full ${type === 'error' ? 'bg-red-500' : 'bg-green-500'}`}>
-        {type === 'error' ? <XCircle size={18} className="shrink-0" /> : <CheckCircle size={18} className="shrink-0" />}
-      </div>
-      <span className="font-semibold text-sm md:text-base">{message}</span>
-      <button onClick={onClose} className="ml-2 p-1 hover:bg-white/20 rounded-full transition-colors">
-        <X size={16} />
+    <div className={`fixed left-1/2 px-5 py-3 rounded-2xl shadow-2xl z-[200] flex items-center gap-3 border backdrop-blur-md text-white max-w-[92vw] ${config.bg} ${config.border} ${config.shadow} ${exiting ? 'toast-exit' : 'toast-enter'}`}
+      style={{ top: '20px' }}>
+      <div className={`p-1.5 rounded-full shrink-0 ${config.iconBg}`}>{config.icon}</div>
+      <span className="font-semibold text-sm leading-tight flex-1">{message}</span>
+      <button onClick={() => { setExiting(true); setTimeout(onClose, 250); }} className="ml-1 p-1 hover:bg-white/20 rounded-full transition-colors shrink-0">
+        <X size={14} />
       </button>
+      <div className="absolute bottom-0 left-4 right-4 h-[3px] rounded-full overflow-hidden">
+        <div className={`h-full bg-white/40 toast-progress`} style={{ animationDuration: `${duration}ms` }} />
+      </div>
     </div>
   );
 };
@@ -1222,7 +1280,7 @@ const VoiceInput = ({ onResult, isDark, lang = 'en-IN' }) => {
         setTimeout(() => setHasError(false), 2000);
       }
     } else {
-      alert("Voice input not supported in this browser. Please type manually.");
+      alert("Voice input not supported in this browser.");
     }
   };
 
@@ -1441,13 +1499,17 @@ function DukanRegister() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [previousView, setPreviousView] = useState<string | null>(null); // Track previous view for smart back navigation
   const [notifPermission, setNotifPermission] = useState('default');
-  const [toast, setToast] = useState(null);
+  const [toastQueue, setToastQueue] = useState<{id: number; message: string; type: string}[]>([]);
 
   // ??? IMAGE STATE
   const [viewImage, setViewImage] = useState(null);
 
   // ?? SYNC INDICATOR STATE
   const [hasPendingWrites, setHasPendingWrites] = useState(false);
+
+  // Staff permissions config modal
+  const [showPermissionPicker, setShowPermissionPicker] = useState(false);
+  const [tempPermissions, setTempPermissions] = useState<StaffPermissions>(DEFAULT_STAFF_PERMISSIONS);
 
   const [confirmConfig, setConfirmConfig] = useState({
     isOpen: false,
@@ -1471,9 +1533,37 @@ function DukanRegister() {
   const dataRef = useRef(data);
   useEffect(() => { dataRef.current = data; }, [data]);
 
-  const showToast = useCallback((message, type = 'success') => {
-    setToast({ message, type });
-  }, [setToast]);
+  // Derived staff permissions
+  const staffPermissions: StaffPermissions = useMemo(() => {
+    return data.settings?.staffPermissions || DEFAULT_STAFF_PERMISSIONS;
+  }, [data.settings?.staffPermissions]);
+
+  // Helper to get hidden tool IDs from staff permissions
+  const getStaffHiddenToolIds = useCallback((): string[] => {
+    const perms = staffPermissions;
+    const hidden: string[] = [];
+    if (!perms.canViewMargin) hidden.push('margin');
+    if (!perms.canViewAnalytics) hidden.push('analytics');
+    if (!perms.canViewImport) hidden.push('import');
+    if (!perms.canViewStockValue) hidden.push('stockvalue');
+    if (!perms.canViewSupplier) hidden.push('supplier');
+    if (!perms.canViewKhata) hidden.push('udhaar');
+    if (!perms.canViewCRM) hidden.push('crm');
+    if (!perms.canViewJobCards) hidden.push('jobcard');
+    return hidden;
+  }, [staffPermissions]);
+
+  const showToast = useCallback((message: string, type = 'success') => {
+    const id = Date.now() + Math.random();
+    setToastQueue(prev => {
+      const next = [...prev, { id, message, type }];
+      return next.slice(-3); // max 3 stacked
+    });
+  }, []);
+
+  const removeToast = useCallback((id: number) => {
+    setToastQueue(prev => prev.filter(t => t.id !== id));
+  }, []);
 
   useEffect(() => {
     setDisplayLimit(50);
@@ -1881,7 +1971,7 @@ function DukanRegister() {
   };
   /* eslint-disable-next-line no-unused-vars */
   const handleBillUpload = async (e) => {
-    if (data.bills.length >= 50) return alert("Storage Limit Reached (Max 50 Photos)");
+    if (data.bills.length >= 50) { showToast("Storage Limit Reached (Max 50 Photos)", "warning"); return; }
     const file = e.target.files[0];
     if (!file) return;
 
@@ -1997,8 +2087,8 @@ function DukanRegister() {
   };
   const handleDeleteBill = async (bill) => {
     if (!bill) return;
-    if (!confirm('Delete this bill?')) return;
-    // âœ… FIX: Use functional setState + dataRef for latest state (no stale closure)
+    triggerConfirm('Delete Bill?', 'This bill photo will be permanently removed.', true, () => {
+    // ✅ FIX: Use functional setState + dataRef for latest state (no stale closure)
     const latestBills = (dataRef.current.bills || []).filter(b => b.id !== bill.id);
     const updated = { ...dataRef.current, bills: latestBills };
     setData(updated);
@@ -2020,6 +2110,7 @@ function DukanRegister() {
       })();
     }
     showToast('Bill deleted');
+    });
   };
 
   // --- Storage delete helpers ---
@@ -2131,7 +2222,7 @@ function DukanRegister() {
     if (deferredPrompt) {
       deferredPrompt.prompt();
       deferredPrompt.userChoice.then((choiceResult) => { if (choiceResult.outcome === 'accepted') setDeferredPrompt(null); });
-    } else { alert("Browser Menu -> Install App"); }
+    } else { showToast("Open Browser Menu → Install App", "info"); }
   };
 
 
@@ -2641,6 +2732,7 @@ function DukanRegister() {
 
       {/* 3. KPI Cards Row */}
       <div className="px-4 pt-5 pb-2 overflow-x-auto hide-scrollbar flex gap-3">
+        {(!isStaffMode || staffPermissions.canViewSales) && (
         <div className="min-w-[145px] bg-[#FFFFFF] dark:bg-slate-800 p-4 rounded-[16px] border border-gray-100 dark:border-slate-700 shadow-[0_4px_16px_rgba(15,20,36,0.04)] active:scale-95 transition-transform cursor-pointer" onClick={() => { setView('dailySales'); }}>
           <div className="flex items-center gap-1.5 text-[#556077] dark:text-slate-400 mb-1">
             <TrendingDown size={14} className="text-[#17B890] transform rotate-180" />
@@ -2665,6 +2757,7 @@ function DukanRegister() {
             <ArrowUp size={12} strokeWidth={3}/> View Detail
           </div>
         </div>
+        )}
 
         <div className="min-w-[145px] bg-[#FFFFFF] dark:bg-slate-800 p-4 rounded-[16px] border border-gray-100 dark:border-slate-700 shadow-[0_4px_16px_rgba(15,20,36,0.04)] active:scale-95 transition-transform cursor-pointer" onClick={() => { setAlertTab('stock'); setView('alerts'); }}>
           <div className="flex items-center gap-1.5 text-[#F57C00] mb-1">
@@ -2677,6 +2770,7 @@ function DukanRegister() {
           </div>
         </div>
 
+        {(!isStaffMode || staffPermissions.canViewPendingDue) && (
         <div className="min-w-[145px] bg-[#FFFFFF] dark:bg-slate-800 p-4 rounded-[16px] border border-gray-100 dark:border-slate-700 shadow-[0_4px_16px_rgba(15,20,36,0.04)] active:scale-95 transition-transform cursor-pointer" onClick={() => { setActiveToolId('udhaar'); setPreviousView('generalIndex'); setView('tools'); }}>
           <div className="flex items-center gap-1.5 text-[#2F80ED] mb-1">
             <FileText size={14} />
@@ -2687,6 +2781,7 @@ function DukanRegister() {
             Collect Now <ChevronRight size={12}/>
           </div>
         </div>
+        )}
       </div>
 
       {/* 4. Business Hub Section */}
@@ -2713,12 +2808,12 @@ function DukanRegister() {
             displayTools = pinnedIds.map(id => DASHBOARD_TOOLS.find(t => t.id === id)).filter(Boolean);
           } else {
             // Default 7 list if none pinned
-            displayTools = DASHBOARD_TOOLS.filter((t) => isStaffMode ? !['margin', 'analytics', 'import', 'stockvalue', 'supplier'].includes(t.id) : true).slice(0, 7);
+            displayTools = DASHBOARD_TOOLS.filter((t) => isStaffMode ? !getStaffHiddenToolIds().includes(t.id) : true).slice(0, 7);
           }
 
             if (isStaffMode) {
                // Filter out sensitive tools from the home dashboard
-               displayTools = displayTools.filter((t: any) => !['margin', 'analytics', 'import', 'stockvalue', 'supplier'].includes(t.id));
+               displayTools = displayTools.filter((t: any) => !getStaffHiddenToolIds().includes(t.id));
             }
           const systemTiles = [
             { id: "all_tools", title: t("All\nTools"), icon: Layers, bg: "bg-slate-100", iconCol: "text-slate-600 bg-white", darkBg: "dark:bg-slate-800", dark: { bg: "bg-slate-800", icon: "text-slate-300 bg-slate-700" } }
@@ -3275,7 +3370,22 @@ function DukanRegister() {
         </div>
       )}
 
-      {toast && <ToastMessage message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      {toastQueue.map((t, i) => (
+        <div key={t.id} style={{ top: `${20 + i * 60}px`, zIndex: 200 + i }}>
+          <ToastMessage message={t.message} type={t.type} onClose={() => removeToast(t.id)} />
+        </div>
+      ))}
+
+      {/* 👷 STAFF MODE BANNER */}
+      {isStaffMode && isOnline && (
+        <div className="fixed top-0 left-0 right-0 z-[198] staff-banner">
+          <div className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 text-white py-1.5 px-4 flex items-center justify-center gap-2 shadow-md">
+            <Lock size={13} />
+            <span className="text-[11px] font-bold uppercase tracking-wider">Staff Mode Active</span>
+            <span className="text-[10px] opacity-80">• Limited Access</span>
+          </div>
+        </div>
+      )}
 
       {/* ?? GHOST MIC OVERLAY - Voice Search with AI */}
       {isGhostMicOpen && (
@@ -3331,6 +3441,10 @@ function DukanRegister() {
         setIsCopyModalOpen={setIsCopyModalOpen}
         updateQtyBuffer={updateQtyBuffer}
         tempChanges={tempChanges}
+        isStaffMode={isStaffMode}
+        canChangeQty={staffPermissions.canChangeQty}
+        canAddItems={staffPermissions.canAddItems}
+        canEditItems={staffPermissions.canEditItems}
       />}
       {showAnnouncements && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-start justify-center p-4 pt-20 animate-in fade-in">
@@ -3395,7 +3509,7 @@ function DukanRegister() {
 
       {/* Bills view removed */}
 
-      {view === 'tools' && <ToolsHub onBack={() => { setView(previousView || 'settings'); setInitialNoteId(null); setActiveToolId(null); }} t={t} isDark={isDark} initialTool={activeToolId} initialNoteId={initialNoteId} pinnedTools={data.settings?.dashboardTools || ['crm', 'jobcard', 'vehicle', 'analytics', 'udhaar', 'supplier', 'warranty']} onTogglePin={handleTogglePin} shopDetails={data.settings} data={data} isStaffMode={isStaffMode} onUpdateData={async (newData) => {
+      {view === 'tools' && <ToolsHub onBack={() => { setView(previousView || 'settings'); setInitialNoteId(null); setActiveToolId(null); }} t={t} isDark={isDark} initialTool={activeToolId} initialNoteId={initialNoteId} pinnedTools={data.settings?.dashboardTools || ['crm', 'jobcard', 'vehicle', 'analytics', 'udhaar', 'supplier', 'warranty']} onTogglePin={handleTogglePin} shopDetails={data.settings} data={data} isStaffMode={isStaffMode} staffPermissions={staffPermissions} onUpdateData={async (newData) => {
         const updated = { ...data, ...newData };
         await pushToFirebase(updated);
       }} />}
@@ -3558,12 +3672,12 @@ function DukanRegister() {
       )}
 
       {showRoleModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[80] flex items-end justify-center p-4 animate-in fade-in" onClick={() => setShowRoleModal(false)}>
-          <div className={`w-full max-w-sm rounded-[24px] p-6 shadow-2xl animate-in slide-in-from-bottom border-t ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-white border-gray-100'}`} onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[80] flex items-end justify-center p-4 backdrop-enter" onClick={() => setShowRoleModal(false)}>
+          <div className={`w-full max-w-sm rounded-[24px] p-6 shadow-2xl bottom-sheet-enter border-t ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-white border-gray-100'}`} onClick={e => e.stopPropagation()}>
             <div className="flex border-b pb-4 mb-4 justify-between items-center border-gray-200 dark:border-slate-800">
               <h3 className="text-xl font-bold flex items-center gap-2">
                 {isStaffMode ? <Lock className="text-orange-500"/> : <ShieldCheck className="text-blue-500" />} 
-                {isStaffMode ? "Unlock Admin Mode" : "Switch to Staff Mode"}
+                {isStaffMode ? "Unlock Admin Mode" : "Staff Mode"}
               </h3>
               <button onClick={() => setShowRoleModal(false)} className="p-2 bg-gray-100 dark:bg-slate-800 rounded-full hover:bg-gray-200 dark:hover:bg-slate-700"><X size={20}/></button>
             </div>
@@ -3571,7 +3685,7 @@ function DukanRegister() {
             <p className="text-sm font-medium opacity-80 mb-5">
               {isStaffMode 
                 ? "Enter the App Password to access analytics, settings, and full shop controls." 
-                : "Staff mode hides sensitive metrics, analytics, and settings from employees. Your shop data remains fully operational for taking orders."}
+                : "Choose what your staff can see and do. Permissions are saved to cloud."}
             </p>
 
             {isStaffMode && (
@@ -3585,14 +3699,63 @@ function DukanRegister() {
               />
             )}
 
+            {/* Permission Picker (only shown when switching TO staff mode) */}
+            {!isStaffMode && (
+              <div className="mb-4 max-h-[40vh] overflow-y-auto space-y-2 rounded-xl">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold uppercase tracking-wider opacity-50">Staff Permissions</span>
+                  <button 
+                    onClick={() => {
+                      const allOn = STAFF_PERMISSION_LABELS.every(p => tempPermissions[p.key]);
+                      const newPerms = { ...tempPermissions };
+                      STAFF_PERMISSION_LABELS.forEach(p => { newPerms[p.key] = !allOn; });
+                      setTempPermissions(newPerms);
+                    }}
+                    className="text-[11px] font-bold text-blue-500 hover:text-blue-600"
+                  >
+                    {STAFF_PERMISSION_LABELS.every(p => tempPermissions[p.key]) ? 'Deselect All' : 'Select All'}
+                  </button>
+                </div>
+                {STAFF_PERMISSION_LABELS.map(perm => {
+                  const Icon = perm.icon;
+                  const isOn = tempPermissions[perm.key];
+                  return (
+                    <div 
+                      key={perm.key}
+                      onClick={() => { setTempPermissions(prev => ({ ...prev, [perm.key]: !prev[perm.key] })); haptic(30); }}
+                      className={`permission-row flex items-center justify-between p-3 rounded-xl border cursor-pointer ${isDark ? 'bg-slate-800/50 border-slate-700 hover:bg-slate-700/50' : 'bg-gray-50 border-gray-200 hover:bg-gray-100'}`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-lg bg-gradient-to-br ${perm.color}`}>
+                          <Icon size={14} className="text-white" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold leading-tight">{perm.label}</p>
+                          <p className="text-[10px] opacity-50">{perm.desc}</p>
+                        </div>
+                      </div>
+                      <div className={`relative w-11 h-6 rounded-full transition-all duration-300 ${isOn ? `bg-gradient-to-r ${perm.color}` : isDark ? 'bg-slate-600' : 'bg-gray-300'}`}>
+                        <div className={`toggle-knob absolute top-0.5 w-5 h-5 bg-white rounded-full shadow ${isOn ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
             <button 
               onClick={() => {
                 if (!isStaffMode) {
-                  // Switch to Staff Mode
+                  // Save permissions and switch to Staff Mode
+                  const newSettings = { ...data.settings, staffPermissions: tempPermissions };
+                  const newData = { ...data, settings: newSettings };
+                  setData(newData);
+                  pushToFirebase(newData);
                   setIsStaffMode(true);
                   localStorage.setItem('autonex_staff_mode', 'true');
                   setShowRoleModal(false);
-                  showToast("Staff Mode Activated");
+                  haptic([50, 30, 50]);
+                  showToast("👷 Staff Mode Activated", "info");
                 } else {
                   // Attempt to Unlock Admin
                   const currentPin = data.settings.productPassword || '0000';
@@ -3601,9 +3764,11 @@ function DukanRegister() {
                     localStorage.setItem('autonex_staff_mode', 'false');
                     setRolePinInput('');
                     setShowRoleModal(false);
-                    showToast("Admin Controls Unlocked");
+                    haptic([50, 30, 50]);
+                    showToast("🔓 Admin Controls Unlocked");
                   } else {
                     showToast("Incorrect PIN", "error");
+                    haptic([100, 50, 100]);
                   }
                 }
               }} 
@@ -3734,7 +3899,7 @@ function DukanRegister() {
                 <button onClick={() => setIsDashboardToolEditorOpen(false)} className="p-2 rounded-full hover:bg-gray-100/10"><X size={20}/></button>
               </div>
               <div className="p-4 flex-1 overflow-y-auto space-y-3">
-                {DASHBOARD_TOOLS.filter((t: any) => isStaffMode ? !['margin', 'analytics', 'import', 'stockvalue', 'supplier'].includes(t.id) : true).map((tool: any) => {
+                {DASHBOARD_TOOLS.filter((t: any) => isStaffMode ? !getStaffHiddenToolIds().includes(t.id) : true).map((tool: any) => {
                   const isSelected = editingTools.includes(tool.id);
                   const Icon = tool.icon;
                   return (

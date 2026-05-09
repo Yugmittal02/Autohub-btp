@@ -30,7 +30,25 @@ export interface PerformanceSettings {
     [key: string]: boolean | undefined;
 }
 
+export interface StaffPermissions {
+    canChangeQty: boolean;      // Can modify +/- item quantities
+    canViewKhata: boolean;      // Can see Customer Khata / Udhaar
+    canViewSupplier: boolean;   // Can see Supplier Ledger
+    canViewAnalytics: boolean;  // Can see Analytics Dashboard
+    canViewMargin: boolean;     // Can see Profit Analyzer
+    canViewStockValue: boolean; // Can see Stock Value
+    canViewImport: boolean;     // Can see Data Import/Export
+    canViewSales: boolean;      // Can see Today's Sales KPI
+    canViewPendingDue: boolean; // Can see Pending Due KPI
+    canAddItems: boolean;       // Can add new items / entries
+    canDeleteItems: boolean;    // Can delete items
+    canEditItems: boolean;      // Can edit item names
+    canViewCRM: boolean;        // Can see Customer CRM
+    canViewJobCards: boolean;   // Can see Job Cards
+}
+
 export interface Settings {
+    staffPermissions?: StaffPermissions;
     dashboardTools?: string[];
     udhaarDue?: number;
     shopName?: string;

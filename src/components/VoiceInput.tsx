@@ -93,7 +93,9 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onResult, isDark, lang = 'en-IN
                 setTimeout(() => setHasError(false), 2000);
             }
         } else {
-            alert("Voice input not supported in this browser. Please type manually.");
+            setHasError(true);
+            setTimeout(() => setHasError(false), 3000);
+            console.info("Voice input not supported in this browser.");
         }
     };
 

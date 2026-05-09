@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { ArrowLeft, Share, Filter, Send, MoreHorizontal, Download, X, Tag, Calendar } from 'lucide-react';
+import { globalToast } from '../../lib/globalToast';
 
 export const AnalyticsDashboard = ({ onBack, isDark = false, data, t }: { onBack: () => void, isDark?: boolean, data?: any, t?: any }) => {
   const [activeTab, setActiveTab] = useState('Day');
@@ -209,7 +210,7 @@ export const AnalyticsDashboard = ({ onBack, isDark = false, data, t }: { onBack
   const displayedTxns = showAllTxns ? recentTxns : recentTxns.slice(0, 4);
 
   const handleExport = () => {
-    if (!filteredEvents.length) return alert("No active data to export over this period!");
+    if (!filteredEvents.length) { globalToast("No active data to export over this period!", "warning"); return; }
     const csvRows = [["Date", "Time", "Item Name", "Quantity", "Amount", "Payment Method"]];
     filteredEvents.forEach((e: any) => {
       const d = new Date(e.ts || e.date);
@@ -230,7 +231,7 @@ export const AnalyticsDashboard = ({ onBack, isDark = false, data, t }: { onBack
     if (navigator.share) {
       try { await navigator.share({ title: "Sales Report", text }); } catch(err) {}
     } else {
-      alert("Sharing not supported on this browser. Copied to clipboard!\n\n" + text);
+      globalToast("Sharing not supported on this browser. Report copied!", "info");
     }
   };
 

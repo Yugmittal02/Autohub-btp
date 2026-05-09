@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import VoiceInput from '../VoiceInput';
 import { BarcodeScanner } from './BarcodeScanner';
+import { globalToast } from '../../lib/globalToast';
 
 interface RowData {
   id: string | number;
@@ -147,7 +148,7 @@ export const DataImportExport: React.FC<{
             setStep('mapping');
           }
         } catch (err) {
-          alert('Failed to read file layout. Ensure valid CSV/JSON.');
+          globalToast('Failed to read file layout. Ensure valid CSV/JSON.', 'error');
         }
         setIsProcessing(false);
       }, 600);
@@ -254,7 +255,7 @@ export const DataImportExport: React.FC<{
   const exportScannedVehicles = () => {
     const scans = data?.scannedVehicles || [];
     if (!scans.length) {
-      alert('No scanned vehicles to export.');
+      globalToast('No scanned vehicles to export.', 'warning');
       return;
     }
     const csvRows = [["Reg No", "Customer Name", "Phone", "Scanned At"]];

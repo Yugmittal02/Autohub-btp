@@ -43,7 +43,7 @@ import { CustomerCRM } from './tools/CustomerCRM';
 // Mock for translateWithGoogle if not found, but I should try to import it if I can finding it.
 // I'll check imports later if it fails. For now, I'll assume it is in scope or imported.
 
-import { AppData, ShopDetails } from '../types';
+import { AppData, ShopDetails, StaffPermissions } from '../types';
 
 interface ToolsHubProps {
     onBack: () => void;
@@ -54,11 +54,28 @@ interface ToolsHubProps {
     pinnedTools?: string[];
     onTogglePin?: (toolId: string) => void;
     shopDetails: ShopDetails;
-    data: AppData; isStaffMode?: boolean;
+    data: AppData;
+    isStaffMode?: boolean;
+    staffPermissions?: StaffPermissions;
     onUpdateData?: (newData: Partial<AppData>) => void;
 }
 
-const ToolsHub: React.FC<ToolsHubProps> = ({ onBack, t, isDark, initialTool = null, initialNoteId = null, pinnedTools, onTogglePin, shopDetails, data, onUpdateData, isStaffMode }) => {
+// Map staff permissions to tool IDs that should be hidden
+const getHiddenToolIds = (perms?: StaffPermissions): string[] => {
+    if (!perms) return ['margin', 'analytics', 'import', 'stockvalue', 'supplier', 'udhaar', 'crm', 'jobcard'];
+    const hidden: string[] = [];
+    if (!perms.canViewMargin) hidden.push('margin');
+    if (!perms.canViewAnalytics) hidden.push('analytics');
+    if (!perms.canViewImport) hidden.push('import');
+    if (!perms.canViewStockValue) hidden.push('stockvalue');
+    if (!perms.canViewSupplier) hidden.push('supplier');
+    if (!perms.canViewKhata) hidden.push('udhaar');
+    if (!perms.canViewCRM) hidden.push('crm');
+    if (!perms.canViewJobCards) hidden.push('jobcard');
+    return hidden;
+};
+
+const ToolsHub: React.FC<ToolsHubProps> = ({ onBack, t, isDark, initialTool = null, initialNoteId = null, pinnedTools, onTogglePin, shopDetails, data, onUpdateData, isStaffMode, staffPermissions }) => {
     const [activeTool, setActiveTool] = useState<string | null>(initialTool);
     const openedDirectlyRef = useRef(!!initialTool);
 
@@ -165,7 +182,7 @@ const ToolsHub: React.FC<ToolsHubProps> = ({ onBack, t, isDark, initialTool = nu
 
     const shareInvoiceImage = async () => {
         try {
-            alert("Share functionality requires device capabilities.");
+            console.warn("Share functionality requires device capabilities.");
         } catch (e) { console.error(e); }
     };
 
@@ -333,7 +350,7 @@ const ToolsHub: React.FC<ToolsHubProps> = ({ onBack, t, isDark, initialTool = nu
         <div className={`fixed inset-0 z-[60] overflow-y-auto ${isDark ? 'bg-slate-950 text-white' : 'bg-gray-50 text-black'}`}>{!activeTool && (<div className={`sticky top-0 p-4 border-b flex items-center gap-3 ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-gray-200'}`}><button onClick={handleBackFromTool} className="p-2 rounded-full hover:bg-gray-100/10"><ArrowLeft size={24} /></button><h2 className="text-xl font-bold flex items-center gap-2">{t('Business Tools')}</h2></div>)}<div className="relative p-0 m-0 max-w-md mx-auto h-[calc(100vh-73px)] h-full">
                 {!activeTool && (
                     <div className="p-4 grid grid-cols-2 gap-3 mt-2">
-                          {tools.filter(t => isStaffMode ? !['margin', 'analytics', 'import', 'stockvalue', 'supplier'].includes(t.id) : true).map(tool => {
+                          {tools.filter(t => isStaffMode ? !getHiddenToolIds(staffPermissions).includes(t.id) : true).map(tool => {
                             const isPinned = pinnedTools.includes(tool.id);
                             return (
                                 <div

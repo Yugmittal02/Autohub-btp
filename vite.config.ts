@@ -84,6 +84,14 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // Auto-activate new service worker immediately (no waiting)
+        skipWaiting: true,
+        clientsClaim: true,
+        // Clean up old caches from previous versions
+        cleanupOutdatedCaches: true,
+        // SPA fallback
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api/],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -100,6 +108,20 @@ export default defineConfig({
             }
           },
           {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-webfonts',
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60 * 24 * 365
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
             urlPattern: /\/api\/data\/sync/,
             handler: 'NetworkOnly',
             options: {
@@ -108,6 +130,21 @@ export default defineConfig({
                 options: {
                   maxRetentionTime: 24 * 60 // 24 hours in minutes
                 }
+              }
+            }
+          },
+          {
+            urlPattern: /\/api\/.*/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'api-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 5 // 5 minutes
+              },
+              networkTimeoutSeconds: 10,
+              cacheableResponse: {
+                statuses: [0, 200]
               }
             }
           }

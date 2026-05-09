@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { CreditCard, Share2, Phone, Store, ArrowLeft } from 'lucide-react';
 
 interface DigitalBusinessCardProps {
@@ -26,7 +26,7 @@ const DigitalBusinessCard: React.FC<DigitalBusinessCardProps> = ({ shopDetails, 
                         {t('Digital Business Card')}
                     </h3>
                 </div>
-                <button onClick={() => alert('Sharing not available in preview')} className="p-2 bg-gradient-to-r from-orange-400 to-orange-500 text-white rounded-full hover:shadow-lg shadow-md transition-all">
+                <button onClick={() => { import('../../lib/globalToast').then(m => m.globalToast('Sharing not available in preview', 'info')); }} className="p-2 bg-gradient-to-r from-orange-400 to-orange-500 text-white rounded-full hover:shadow-lg shadow-md transition-all">
                     <Share2 size={20} />
                 </button>
             </div>

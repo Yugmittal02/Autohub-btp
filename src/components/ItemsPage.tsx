@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import {
     ArrowLeft, ArrowRight as ArrowRightIcon, ArrowLeft as ArrowLeftIcon,
-    Copy, Search, Plus, ScanBarcode
+    Copy, Search, Plus, ScanBarcode, Lock
 } from 'lucide-react';
 import DraggableFAB from '../DraggableFAB';
 import { TranslateBtn } from './TranslateBtn';
@@ -28,13 +28,18 @@ interface ItemsPageProps {
     setIsCopyModalOpen: (val: boolean) => void;
     updateQtyBuffer: (id: number, delta: number, current?: number) => void;
     tempChanges: Record<number, number>;
+    isStaffMode?: boolean;
+    canChangeQty?: boolean;
+    canAddItems?: boolean;
+    canEditItems?: boolean;
 }
 
 export const ItemsPage: React.FC<ItemsPageProps> = ({
     activePage, activePageId, data, isDark, t, isHindi, setIsHindi,
     setActivePageId, setView, pageSearchTerm, setPageSearchTerm,
     displayLimit, setDisplayLimit, setIsNewEntryOpen, setEditingEntry,
-    setIsCopyModalOpen, updateQtyBuffer, tempChanges
+    setIsCopyModalOpen, updateQtyBuffer, tempChanges,
+    isStaffMode = false, canChangeQty = true, canAddItems = true, canEditItems = true
 }) => {
     const [isBarcodeScannerOpen, setIsBarcodeScannerOpen] = useState(false);
 
@@ -65,8 +70,10 @@ export const ItemsPage: React.FC<ItemsPageProps> = ({
 
     const visibleEntries = pageSearchTerm ? filteredEntries : filteredEntries.slice(0, displayLimit);
 
+    const showAddFab = !isStaffMode || canAddItems;
+
     return (
-        <div className={`pb-24 min-h-screen animate-in fade-in slide-in-from-bottom-4 duration-300 ${isDark ? 'bg-slate-950 text-white' : 'bg-white text-black'}`}>
+        <div className={`pb-24 min-h-screen page-transition ${isDark ? 'bg-slate-950 text-white' : 'bg-white text-black'}`}>
             <div className={`sticky top-0 z-10 border-b-2 shadow-sm ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-white border-red-200'}`}>
                 <div className={`flex items-center p-3 ${isDark ? 'bg-slate-800' : 'bg-red-50'}`}>
                     <button aria-label={t("Go Back")} onClick={() => { setView('generalIndex'); setActivePageId(null); }} className="mr-2 p-2"><ArrowLeft /></button>
@@ -85,7 +92,14 @@ export const ItemsPage: React.FC<ItemsPageProps> = ({
                             </div>
                         </div>
                         <h2 className="text-2xl font-black uppercase mt-1">{t(activePage.itemName)}</h2>
-                        <div className="text-xs font-bold opacity-70 mt-1">{t("Total")} {t("Items")}: {grandTotal}</div>
+                        <div className="text-xs font-bold opacity-70 mt-1 flex items-center gap-2">
+                            {t("Total")} {t("Items")}: {grandTotal}
+                            {isStaffMode && !canChangeQty && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-100 text-orange-600 text-[10px] font-bold">
+                                    <Lock size={10} /> {t("View Only")}
+                                </span>
+                            )}
+                        </div>
                     </div>
                 </div>
                 <div className={`p-2 flex gap-2 border-t ${isDark ? 'border-slate-700' : 'border-gray-100'}`}>
@@ -117,7 +131,7 @@ export const ItemsPage: React.FC<ItemsPageProps> = ({
                     <div className="w-6 pl-1">#</div>
                     <div className="flex-[2]">{t("Car Name")}</div>
                     <div className="flex-[1] text-center">{t("Qty")}</div>
-                    <div className="w-8 text-center">Ed</div>
+                    {(!isStaffMode || canEditItems) && <div className="w-8 text-center">Ed</div>}
                 </div>
             </div>
 
@@ -133,6 +147,9 @@ export const ItemsPage: React.FC<ItemsPageProps> = ({
                         onEdit={setEditingEntry}
                         limit={data.settings?.limit || 5}
                         tempQty={tempChanges[entry.id]}
+                        isStaffMode={isStaffMode}
+                        canChangeQty={canChangeQty}
+                        canEditItems={canEditItems}
                     />
                 ))}
             </div>
@@ -143,11 +160,13 @@ export const ItemsPage: React.FC<ItemsPageProps> = ({
                 </button>
             )}
 
-            <DraggableFAB id="fab-add" onClick={() => setIsNewEntryOpen(true)} className="fixed z-20" initialBottom={96} initialRight={24}>
-                <div className="bg-blue-600 text-white w-14 h-14 rounded-full shadow-lg border-2 border-white flex items-center justify-center">
-                    <Plus size={28} />
-                </div>
-            </DraggableFAB>
+            {showAddFab && (
+                <DraggableFAB id="fab-add" onClick={() => setIsNewEntryOpen(true)} className="fixed z-20" initialBottom={96} initialRight={24}>
+                    <div className="bg-blue-600 text-white w-14 h-14 rounded-full shadow-lg border-2 border-white flex items-center justify-center">
+                        <Plus size={28} />
+                    </div>
+                </DraggableFAB>
+            )}
         </div>
     );
 };

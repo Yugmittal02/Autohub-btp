@@ -5,6 +5,7 @@ import {
     Highlighter, Circle as CircleIcon, Minus, Eraser, ArrowLeft
 } from 'lucide-react';
 import DOMPurify from 'dompurify';
+import { globalToast } from '../../lib/globalToast';
 import { FloatingNoteMenu } from '../FloatingNoteMenu';
 
 interface NoteMasterProps {
@@ -241,7 +242,7 @@ const NoteMaster: React.FC<NoteMasterProps> = ({ t, isDark, initialNoteId, onBac
             recognition.start();
             return recognition;
         } else {
-            alert("Voice recognition not supported.");
+            globalToast("Voice recognition not supported.", "warning");
             return null;
         }
     };
