@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+// API base URL: empty in dev (uses Vite proxy), set VITE_API_URL in production
+const API_BASE = (import.meta as any).env?.VITE_API_URL || '';
 import { syncEngine } from './lib/offlineSync';
 import DraggableFAB from './DraggableFAB';
 import SettingsPanel from './components/SettingsPanel';
@@ -1530,7 +1532,7 @@ function DukanRegister() {
     const token = localStorage.getItem('autohub_token');
     if (token) {
       // Verify token
-      fetch('/api/auth/verify', {
+      fetch(`${API_BASE}/api/auth/verify`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       .then(res => res.json())
@@ -1569,7 +1571,7 @@ function DukanRegister() {
     window.addEventListener('offline', handleOffline);
 
     // Initial data fetch
-    fetch('/api/data/sync', {
+    fetch(`${API_BASE}/api/data/sync`, {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('autohub_token')}` }
     })
     .then(res => res.json())
@@ -1653,7 +1655,7 @@ function DukanRegister() {
     if (!email || !password) { showToast("Please fill details", "error"); return; }
     try {
       const endpoint = isRegistering ? '/api/auth/register' : '/api/auth/login';
-      const res = await fetch(`${endpoint}`, {
+      const res = await fetch(`${API_BASE}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -1698,7 +1700,7 @@ function DukanRegister() {
     const tryWrite = async (attempts = 3) => {
       for (let i = 1; i <= attempts; i++) {
         try {
-          const res = await fetch('/api/data/sync', {
+          const res = await fetch(`${API_BASE}/api/data/sync`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -1742,7 +1744,7 @@ function DukanRegister() {
     if (!user) return;
     try {
       await syncEngine.processPendingTransfers(async (payload) => {
-        const res = await fetch('/api/data/sync', {
+        const res = await fetch(`${API_BASE}/api/data/sync`, {
            method: 'POST',
            headers: {
              'Content-Type': 'application/json',
@@ -1772,9 +1774,9 @@ function DukanRegister() {
     return () => clearInterval(id);
   }, [data]);
 
-  // ❌ REMOVED: Credential sync to Firestore (was storing PLAINTEXT password in database)
+  // âŒ REMOVED: Credential sync to Firestore (was storing PLAINTEXT password in database)
   // Firebase Auth's browserLocalPersistence already handles login persistence across refreshes.
-  // Storing passwords in Firestore is a severe security liability — even with per-user rules,
+  // Storing passwords in Firestore is a severe security liability â€” even with per-user rules,
   // a compromised admin token or Firestore export would leak all passwords.
 
 
@@ -1909,7 +1911,7 @@ function DukanRegister() {
       progress: 0
     };
 
-    // ✅ FIX: Separate setState from Firebase write to avoid side-effect inside React updater
+    // âœ… FIX: Separate setState from Firebase write to avoid side-effect inside React updater
     // Optimistically update UI first
     setData(prev => {
       const next = { ...prev, bills: [tempBill, ...(prev.bills || [])] };
@@ -1949,7 +1951,7 @@ function DukanRegister() {
           // We don't have progress tracking with simple fetch natively easily without XHR, so just update it immediately
           setData(prev => ({ ...prev, bills: prev.bills.map(b => b.id === timestamp ? { ...b, progress: 99 } : b) }));
           
-            const res = await fetch('/api/upload/bill', {
+            const res = await fetch(`${API_BASE}/api/upload/bill`, {
              method: 'POST',
              headers: {
                'Authorization': `Bearer ${localStorage.getItem('autohub_token')}`
@@ -1963,7 +1965,7 @@ function DukanRegister() {
           const downloadUrl = data.imageUrl;
           const cloudPath = data.path; // Cloudinary public_id
 
-          // ✅ FIX: Use dataRef.current (latest state) instead of stale closure 'data'
+          // âœ… FIX: Use dataRef.current (latest state) instead of stale closure 'data'
           // This prevents overwriting entries/pages/settings changed during upload
           const latestData = dataRef.current;
           const updatedBills = (latestData.bills || []).map(b =>
@@ -1993,7 +1995,7 @@ function DukanRegister() {
   const handleDeleteBill = async (bill) => {
     if (!bill) return;
     if (!confirm('Delete this bill?')) return;
-    // ✅ FIX: Use functional setState + dataRef for latest state (no stale closure)
+    // âœ… FIX: Use functional setState + dataRef for latest state (no stale closure)
     const latestBills = (dataRef.current.bills || []).filter(b => b.id !== bill.id);
     const updated = { ...dataRef.current, bills: latestBills };
     setData(updated);
@@ -2023,7 +2025,7 @@ function DukanRegister() {
   const deleteWithRetry = useCallback(async (storagePath, maxAttempts = 3) => {
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        const res = await fetch('http://localhost:5000/api/upload/bill', {
+        const res = await fetch(`${API_BASE}/api/upload/bill`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -2641,7 +2643,7 @@ function DukanRegister() {
             <TrendingDown size={14} className="text-[#17B890] transform rotate-180" />
             <span className="text-[12px] font-semibold">{t("Today's Sales")}</span>
           </div>
-          <div className="text-[22px] font-bold text-[#0F1724] dark:text-white leading-tight mb-1">₹{(() => {
+          <div className="text-[22px] font-bold text-[#0F1724] dark:text-white leading-tight mb-1">â‚¹{(() => {
             const today = new Date().toISOString().split('T')[0];
             const todaysEvents = (data.salesEvents || []).filter(e => e.type === 'sale' && e.date.startsWith(today));
             const total = todaysEvents.reduce((acc, ev) => {
@@ -2677,7 +2679,7 @@ function DukanRegister() {
             <FileText size={14} />
             <span className="text-[12px] font-semibold text-[#556077] dark:text-slate-400">{t("Pending Due")}</span>
           </div>
-          <div className="text-[22px] font-bold text-[#0F1724] dark:text-white leading-tight mb-1">₹{data.udhaarDue ? data.udhaarDue.toLocaleString() : '0'}</div>
+          <div className="text-[22px] font-bold text-[#0F1724] dark:text-white leading-tight mb-1">â‚¹{data.udhaarDue ? data.udhaarDue.toLocaleString() : '0'}</div>
           <div className="text-[11px] font-bold text-[#2F80ED] flex items-center gap-0.5 mt-2">
             Collect Now <ChevronRight size={12}/>
           </div>
