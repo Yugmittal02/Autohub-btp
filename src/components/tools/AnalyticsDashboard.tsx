@@ -10,12 +10,33 @@ export const AnalyticsDashboard = ({ onBack, isDark = false, data, t }: { onBack
   // Create a selected date state for the calendar (defaults to today)
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
-  // Deterministic price generator based on item name since app only tracks qty natively here
+  // Real inventory metrics from actual data
+  const pages = data?.pages || [];
+  const entries = data?.entries || [];
+  const totalItems = entries.length;
+  const totalStock = entries.reduce((s: number, e: any) => s + (e.qty || 0), 0);
+  const lowStockCount = entries.filter((e: any) => e.qty < (data?.settings?.limit || 5)).length;
+  const pagesWithStock = pages.filter((p: any) => entries.some((e: any) => e.pageId === p.id && e.qty > 0)).length;
+
+  // Page-wise stock breakdown
+  const pageStockMap = useMemo(() => {
+    const map: any[] = [];
+    pages.forEach((p: any) => {
+      const pageEntries = entries.filter((e: any) => e.pageId === p.id);
+      const qty = pageEntries.reduce((s: number, e: any) => s + (e.qty || 0), 0);
+      if (pageEntries.length > 0) map.push({ name: p.itemName, count: pageEntries.length, qty, pageNo: p.pageNo });
+    });
+    return map.sort((a, b) => b.qty - a.qty);
+  }, [pages, entries]);
+
+  // Top items by quantity
+  const topStockItems = useMemo(() => {
+    return [...entries].sort((a: any, b: any) => (b.qty || 0) - (a.qty || 0)).slice(0, 5);
+  }, [entries]);
+
   const getPrice = (name = "") => {
     let hash = 0;
-    for (let i = 0; i < name.length; i++) {
-      hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    }
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
     return (Math.abs(hash) % 50 + 1) * 100;
   };
 
@@ -180,18 +201,8 @@ export const AnalyticsDashboard = ({ onBack, isDark = false, data, t }: { onBack
   const colors = ["#FF8C55", "#17B890", "#5B5CEB"];
   const maxTopRev = (topItemsList[0] as any)?.rev || 1;
 
-  // Dynamic Categories Based on Names
-  const categories = { Engines: 0, Brakes: 0, Electrical: 0, Oils: 0, Other: 0 };
-  filteredEvents.forEach((e: any) => {
-    const l = (e.car || "").toLowerCase();
-    if (l.includes("oil") || l.includes("lube") || l.includes("fluid")) categories.Oils += e.amount;
-    else if (l.includes("brake") || l.includes("pad") || l.includes("disk")) categories.Brakes += e.amount;
-    else if (l.includes("spark") || l.includes("battery") || l.includes("wire") || l.includes("bulb")) categories.Electrical += e.amount;
-    else if (l.includes("engine") || l.includes("belt") || l.includes("filter")) categories.Engines += e.amount;
-    else categories.Other += e.amount;
-  });
-  const catTotalSum = Object.values(categories).reduce((a,b)=>a+b, 0) || 1;
-  const maxCatVal = Math.max(...Object.values(categories), 1);
+  // Real page-wise stock distribution for chart
+  const maxPageQty = Math.max(...pageStockMap.map(p => p.qty), 1);
 
   // Recent Txns
   const recentTxns = [...filteredEvents].sort((a,b) => (b.ts || 0) - (a.ts || 0));
@@ -263,7 +274,7 @@ export const AnalyticsDashboard = ({ onBack, isDark = false, data, t }: { onBack
         </button>
         <div className="flex items-center gap-2 font-bold text-lg">
           <div className="w-6 h-6 rounded-full bg-[#5B5CEB] flex items-center justify-center text-white text-[9px] italic tracking-tight font-black">Autop</div>
-          Sales Analytics
+          Business Analytics
         </div>
         <div className="flex gap-2">
           <button onClick={handleShare} className="p-2 active:bg-gray-100 rounded-full transition-colors"><Share size={20} strokeWidth={2.5} className="text-[#3b4761]" /></button>
@@ -324,40 +335,28 @@ export const AnalyticsDashboard = ({ onBack, isDark = false, data, t }: { onBack
         <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2 snap-x -mx-4 px-4">
           <div className="min-w-[150px] bg-gradient-to-br from-[#6A6DF0] to-[#5153E6] rounded-xl p-4 text-white shadow-[0_8px_20px_rgba(91,92,235,0.25)] snap-center relative overflow-hidden">
             <div className="absolute -bottom-4 -right-4 w-20 h-20 bg-white/10 rounded-full blur-xl"></div>
-            <div className="absolute top-2 right-2 flex gap-1">
-               <div className="w-1.5 h-1.5 rounded-full bg-white/50"></div>
-               <div className="w-1.5 h-1.5 rounded-full bg-white/70"></div>
-            </div>
-            <p className="text-[11px] font-medium opacity-90 mb-0.5">Total Sales</p>
-            <p className="text-[22px] font-bold tracking-tight mb-2">₹{totalSales.toLocaleString('en-IN')}</p>
-            <p className="text-[10px] font-semibold bg-[#494AE5] inline-block px-2 py-0.5 rounded-sm">{activeTab}</p>
+            <p className="text-[11px] font-medium opacity-90 mb-0.5">Total Stock</p>
+            <p className="text-[22px] font-bold tracking-tight mb-2">{totalStock.toLocaleString()}</p>
+            <p className="text-[10px] font-semibold bg-[#494AE5] inline-block px-2 py-0.5 rounded-sm">{totalItems} items</p>
           </div>
           
           <div className="min-w-[150px] bg-gradient-to-br from-[#80d0bd] to-[#54B69F] rounded-xl p-4 text-[#1E3B33] snap-center">
-            <div className="flex justify-between items-start mb-0.5">
-              <p className="text-[11px] font-bold opacity-80">Transactions</p>
-            </div>
-            <p className="text-[22px] font-bold tracking-tight mb-2">{transactions} <span className="text-[11px] font-bold opacity-80 ml-1">Avg ₹{avgTicket}</span></p>
-            <div className="flex gap-1 mt-4">
-              {[1,2,3,4,5].map(i => <div key={i} className={`w-1.5 h-1.5 rounded-full ${i !== 5 ? 'bg-white/50' : 'bg-white'}`}></div>)}
-            </div>
+            <p className="text-[11px] font-bold opacity-80 mb-0.5">Sales ({activeTab})</p>
+            <p className="text-[22px] font-bold tracking-tight mb-2">{transactions}</p>
+            <p className="text-[10px] font-semibold opacity-80">{filteredEvents.reduce((a: number, e: any) => a + e.qty, 0)} units sold</p>
           </div>
           
           <div className="min-w-[150px] bg-gradient-to-br from-[#ffb288] to-[#FF8C55] rounded-xl p-4 text-[#5A2810] snap-center">
-            <p className="text-[11px] font-bold opacity-80 mb-0.5">Restocks Valued</p>
-            <p className="text-[22px] font-bold tracking-tight mb-2 text-[#DD3E3E]">₹{refunds.toLocaleString('en-IN')}</p>
-            <div className="flex gap-1 mt-4">
-              {[1,2,3,4,5].map((i, idx) => <div key={idx} className={`w-1.5 h-1.5 rounded-full ${idx === 3 ? 'bg-white' : 'bg-white/50'}`}></div>)}
-            </div>
+            <p className="text-[11px] font-bold opacity-80 mb-0.5">Low Stock</p>
+            <p className="text-[22px] font-bold tracking-tight mb-2 text-[#DD3E3E]">{lowStockCount}</p>
+            <p className="text-[10px] font-semibold opacity-80">Below {data?.settings?.limit || 5} qty</p>
           </div>
 
           <div className="min-w-[150px] bg-gradient-to-br from-[#c6e7ff] to-[#8cc8ff] rounded-xl p-4 text-[#0F2F4A] snap-center">
-            <p className="text-[11px] font-bold opacity-80 mb-0.5">Vehicle Scans</p>
-            <p className="text-[22px] font-bold tracking-tight mb-2">{scanCount}</p>
-            <p className="text-[10px] font-semibold bg-white/70 inline-block px-2 py-0.5 rounded-sm">{activeTab}</p>
-          </div>
-
-          <div className="min-w-[150px] bg-gradient-to-br from-[#d7f7df] to-[#a7e9bc] rounded-xl p-4 text-[#1A3B25] snap-center">
+            <p className="text-[11px] font-bold opacity-80 mb-0.5">Active Pages</p>
+            <p className="text-[22px] font-bold tracking-tight mb-2">{pagesWithStock}/{pages.length}</p>
+            <p className="text-[10px] font-semibold bg-white/70 inline-block px-2 py-0.5 rounded-sm">with stock</p>
+          </div>          <div className="min-w-[150px] bg-gradient-to-br from-[#d7f7df] to-[#a7e9bc] rounded-xl p-4 text-[#1A3B25] snap-center">
             <p className="text-[11px] font-bold opacity-80 mb-0.5">Repeat Vehicles</p>
             <p className="text-[22px] font-bold tracking-tight mb-2">{repeatScanCount}</p>
             <p className="text-[10px] font-semibold opacity-80">Unique: {uniqueScanCount}</p>
@@ -480,25 +479,48 @@ export const AnalyticsDashboard = ({ onBack, isDark = false, data, t }: { onBack
 
         {/* Sales by Category */}
         <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-          <h3 className="text-[14px] font-bold text-[#0F1724] mb-4">Sales by Category</h3>
+          <h3 className="text-[14px] font-bold text-[#0F1724] mb-4">Stock by Page</h3>
           <div className="space-y-3.5">
-            {Object.entries(categories).filter(([_,v]) => v > 0).length > 0 ? Object.entries(categories).map(([name, val], idx) => {
-              if(val === 0) return null;
-              const pct = val > 0 ? Math.round((val / catTotalSum) * 100) : 0;
-              const fillPct = val > 0 ? (val / maxCatVal) * 100 : 0;
+            {pageStockMap.length > 0 ? pageStockMap.slice(0, 8).map((pg, idx) => {
+              const pct = totalStock > 0 ? Math.round((pg.qty / totalStock) * 100) : 0;
+              const fillPct = (pg.qty / maxPageQty) * 100;
+              const barColors = ["#5B5CEB", "#17B890", "#FF8C55", "#2F80ED", "#E84393", "#00B894", "#6C5CE7", "#FDCB6E"];
               return (
-              <div key={name} className="flex items-center gap-3 text-[13px]">
-                <div className="w-[65px] font-semibold text-[#556077]">{name}</div>
-                <div className="w-[50px] font-bold text-[#0F1724]">₹{val.toLocaleString('en-IN')}</div>
+              <div key={pg.name} className="flex items-center gap-3 text-[13px]">
+                <div className="w-[90px] font-semibold text-[#556077] truncate" title={pg.name}>P{pg.pageNo}</div>
+                <div className="w-[35px] font-bold text-[#0F1724]">{pg.qty}</div>
                 <div className="flex-1 h-3 bg-[#EAEAF5] rounded-full overflow-hidden">
-                  <div className="h-full bg-[#7A7CEE] rounded-full transition-all duration-1000" style={{ width: `${fillPct}%` }}></div>
+                  <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${fillPct}%`, backgroundColor: barColors[idx % barColors.length] }}></div>
                 </div>
                 <div className="w-9 text-right font-bold text-[#838EA6]">{pct}%</div>
               </div>
             )}) : (
-              <div className="flex items-center justify-center py-4 text-sm text-gray-400 font-semibold bg-gray-50 rounded-xl">Insufficient Data</div>
+              <div className="flex items-center justify-center py-4 text-sm text-gray-400 font-semibold bg-gray-50 rounded-xl">No inventory data</div>
             )}
           </div>
+        </div>
+
+        {/* Top Stock Items */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+          <h3 className="text-[14px] font-bold text-[#0F1724] mb-4">Top Stock Items</h3>
+          {topStockItems.length > 0 ? (
+          <div className="space-y-3">
+            {topStockItems.map((item: any, id) => {
+              const page = pages.find((p: any) => p.id === item.pageId);
+              return (
+              <div key={id} className="flex items-center gap-3 bg-[#F9FAFB] p-2.5 rounded-xl">
+                <div className="w-[24px] h-[24px] rounded-lg flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0" style={{ backgroundColor: ["#FF8C55","#17B890","#5B5CEB","#2F80ED","#E84393"][id] }}>{id + 1}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[13px] font-bold text-[#0F1724] truncate">{item.car}</div>
+                  <div className="text-[10px] text-[#838EA6]">{page?.itemName || 'Unknown'}</div>
+                </div>
+                <div className="text-[15px] font-bold text-[#0F1724]">{item.qty}</div>
+              </div>
+            )})}
+          </div>
+          ) : (
+            <div className="flex items-center justify-center py-6 text-sm text-gray-400 font-semibold bg-gray-50 rounded-xl border border-dashed border-gray-200">No items</div>
+          )}
         </div>
 
         {/* Recent Transactions Interactive */}
