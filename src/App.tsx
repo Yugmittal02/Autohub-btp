@@ -2643,7 +2643,7 @@ function DukanRegister() {
             <TrendingDown size={14} className="text-[#17B890] transform rotate-180" />
             <span className="text-[12px] font-semibold">{t("Today's Sales")}</span>
           </div>
-          <div className="text-[22px] font-bold text-[#0F1724] dark:text-white leading-tight mb-1">â‚¹{(() => {
+          <div className="text-[22px] font-bold text-[#0F1724] dark:text-white leading-tight mb-1">₹{(() => {
             const today = new Date().toISOString().split('T')[0];
             const todaysEvents = (data.salesEvents || []).filter(e => e.type === 'sale' && e.date.startsWith(today));
             const total = todaysEvents.reduce((acc, ev) => {
@@ -2679,7 +2679,7 @@ function DukanRegister() {
             <FileText size={14} />
             <span className="text-[12px] font-semibold text-[#556077] dark:text-slate-400">{t("Pending Due")}</span>
           </div>
-          <div className="text-[22px] font-bold text-[#0F1724] dark:text-white leading-tight mb-1">â‚¹{data.udhaarDue ? data.udhaarDue.toLocaleString() : '0'}</div>
+          <div className="text-[22px] font-bold text-[#0F1724] dark:text-white leading-tight mb-1">₹{data.udhaarDue ? data.udhaarDue.toLocaleString() : '0'}</div>
           <div className="text-[11px] font-bold text-[#2F80ED] flex items-center gap-0.5 mt-2">
             Collect Now <ChevronRight size={12}/>
           </div>
