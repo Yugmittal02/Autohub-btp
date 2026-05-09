@@ -1530,7 +1530,7 @@ function DukanRegister() {
     const token = localStorage.getItem('autohub_token');
     if (token) {
       // Verify token
-      fetch('https://moccasin-hornet-496618.hostingersite.com/api/auth/verify', {
+      fetch('/api/auth/verify', {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       .then(res => res.json())
@@ -1569,7 +1569,7 @@ function DukanRegister() {
     window.addEventListener('offline', handleOffline);
 
     // Initial data fetch
-    fetch('https://moccasin-hornet-496618.hostingersite.com/api/data/sync', {
+    fetch('/api/data/sync', {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('autohub_token')}` }
     })
     .then(res => res.json())
@@ -1653,7 +1653,7 @@ function DukanRegister() {
     if (!email || !password) { showToast("Please fill details", "error"); return; }
     try {
       const endpoint = isRegistering ? '/api/auth/register' : '/api/auth/login';
-      const res = await fetch(`https://moccasin-hornet-496618.hostingersite.com${endpoint}`, {
+      const res = await fetch(`${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -1698,7 +1698,7 @@ function DukanRegister() {
     const tryWrite = async (attempts = 3) => {
       for (let i = 1; i <= attempts; i++) {
         try {
-          const res = await fetch('https://moccasin-hornet-496618.hostingersite.com/api/data/sync', {
+          const res = await fetch('/api/data/sync', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -1742,7 +1742,7 @@ function DukanRegister() {
     if (!user) return;
     try {
       await syncEngine.processPendingTransfers(async (payload) => {
-        const res = await fetch('https://moccasin-hornet-496618.hostingersite.com/api/data/sync', {
+        const res = await fetch('/api/data/sync', {
            method: 'POST',
            headers: {
              'Content-Type': 'application/json',
@@ -1871,7 +1871,7 @@ function DukanRegister() {
       canvas.width = Math.min(MAX_WIDTH, imgBitmap.width);
       canvas.height = Math.round((imgBitmap.height * canvas.width) / imgBitmap.width);
       ctx.drawImage(imgBitmap, 0, 0, canvas.width, canvas.height);
-      return await new Promise((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error('Compression failed'))), 'image/jpeg', 0.75));
+      return await new Promise((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error('Compression failed')), 'image/jpeg', 0.75));
     })();
   };
   /* eslint-disable-next-line no-unused-vars */
@@ -1949,7 +1949,7 @@ function DukanRegister() {
           // We don't have progress tracking with simple fetch natively easily without XHR, so just update it immediately
           setData(prev => ({ ...prev, bills: prev.bills.map(b => b.id === timestamp ? { ...b, progress: 99 } : b) }));
           
-            const res = await fetch('https://moccasin-hornet-496618.hostingersite.com/api/upload/bill', {
+            const res = await fetch('/api/upload/bill', {
              method: 'POST',
              headers: {
                'Authorization': `Bearer ${localStorage.getItem('autohub_token')}`
