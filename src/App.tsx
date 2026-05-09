@@ -2344,7 +2344,7 @@ function DukanRegister() {
     const updatedEntries = data.entries.map(e => {
       if (tempChanges[e.id] !== undefined) {
         const finalQty = tempChanges[e.id];
-        if (finalQty < data.settings.limit) lowStockTriggered++;
+        if (finalQty < (data.settings?.limit || 5)) lowStockTriggered++;
 
         const prevQty = Number(e.qty || 0);
         const nextQty = Number(finalQty || 0);
@@ -3058,8 +3058,8 @@ function DukanRegister() {
       {alertTab === 'stock' ? (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
           <div className="flex justify-between items-center mb-4"><h2 className="text-2xl font-bold text-red-500 flex items-center gap-2"><AlertTriangle /> {t("Low Stock")}</h2><TranslateBtn isHindi={isHindi} setIsHindi={setIsHindi} isDark={isDark} /></div>
-          {(data.entries || []).filter(e => e.qty < data.settings.limit).length === 0 && <div className="text-center mt-10 opacity-50 flex flex-col items-center gap-2"><CheckCircle size={48} className="text-green-500" />{t("Stock Full")}</div>}
-          {(data.entries || []).filter(e => e.qty < data.settings.limit).map(e => {
+          {(data.entries || []).filter(e => e.qty < (data.settings?.limit || 5)).length === 0 && <div className="text-center mt-10 opacity-50 flex flex-col items-center gap-2"><CheckCircle size={48} className="text-green-500" />{t("Stock Full")}</div>}
+          {(data.entries || []).filter(e => e.qty < (data.settings?.limit || 5)).map(e => {
             const p = (data.pages || []).find(page => page.id === e.pageId);
             return (
               <div key={e.id} className="p-4 border-l-4 border-red-500 bg-white dark:bg-slate-800 text-black dark:text-white shadow-sm hover:shadow-md transition-shadow mb-2 rounded-xl flex justify-between items-center cursor-pointer group" onClick={() => { if (p) { setActivePageId(p.id); setView('page'); } }}>
@@ -3417,7 +3417,7 @@ function DukanRegister() {
           label={t("Alerts")} 
           active={view === 'alerts'} 
           onClick={() => setView('alerts')} 
-          alertCount={(data.entries || []).filter(e => e.qty < data.settings.limit).length + (data.gpsReminders || []).filter(r => (new Date(r.expiryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24) < 7).length}
+          alertCount={(data.entries || []).filter(e => e.qty < (data.settings?.limit || 5)).length + (data.gpsReminders || []).filter(r => (new Date(r.expiryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24) < 7).length}
           isDark={isDark} 
           accentHex={'#FF7A18'} 
         />

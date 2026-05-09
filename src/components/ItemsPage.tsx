@@ -131,7 +131,7 @@ export const ItemsPage: React.FC<ItemsPageProps> = ({
                         isDark={isDark}
                         onUpdateBuffer={(id: any, delta: any, current: any) => updateQtyBuffer(Number(id), delta, current)}
                         onEdit={setEditingEntry}
-                        limit={data.settings.limit}
+                        limit={data.settings?.limit || 5}
                         tempQty={tempChanges[entry.id]}
                     />
                 ))}
