@@ -100,6 +100,9 @@ const QuotationMaker: React.FC<QuotationMakerProps> = ({ t, shopDetails, data, i
     const quoteTotal = quoteSubtotal - quoteDiscount;
 
     const generatePdfHtml = () => {
+        const settings = data?.settings || {};
+        const shopNameDisplay = settings.shopName || shopDetails.name || 'AUTO PARTS STORE';
+        const addressDisplay = settings.businessAddress || shopDetails.address || 'Premium Car Accessories & Modifications';
         return `
             <html>
                 <head>
@@ -108,7 +111,7 @@ const QuotationMaker: React.FC<QuotationMakerProps> = ({ t, shopDetails, data, i
                     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
                     <style>
                         body { font-family: 'Outfit', sans-serif; padding: 40px; color: #1e293b; max-width: 850px; margin: 0 auto; background: #fff; }
-                        .header-banner { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); color: white; padding: 40px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 40px; }
+                        .header-banner { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); color: white; padding: 40px; border-radius: 20px; display: flex; justify-content: space-between; align-items: flex-start; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 40px; }
                         .shop-name { font-size: 32px; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: 2px; background: linear-gradient(to right, #fff, #cbd5e1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
                         .shop-tagline { font-size: 14px; color: #94a3b8; margin-top: 5px; font-weight: 300; }
                         .quote-badge { background: rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 30px; font-weight: 800; letter-spacing: 2px; font-size: 14px; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px); }
@@ -140,8 +143,13 @@ const QuotationMaker: React.FC<QuotationMakerProps> = ({ t, shopDetails, data, i
                 <body>
                     <div class="header-banner">
                         <div>
-                            <h1 class="shop-name">${shopDetails.name || 'AUTO PARTS STORE'}</h1>
-                            <div class="shop-tagline">${quoteSettings.shopAddress || shopDetails.address || 'Premium Car Accessories & Modifications'}</div>
+                            <h1 class="shop-name">${shopNameDisplay}</h1>
+                            <div class="shop-tagline" style="white-space: pre-wrap;">${addressDisplay}</div>
+                            <div class="shop-tagline">
+                                ${settings.phone ? `Phone: ${settings.phone} ` : ''}
+                                ${settings.email ? `| Email: ${settings.email}` : ''}
+                            </div>
+                            ${settings.gstNumber ? `<div style="font-weight: 700; margin-top: 10px; color: #cbd5e1;">GSTIN: ${settings.gstNumber}</div>` : ''}
                         </div>
                         <div class="quote-badge">ESTIMATE</div>
                     </div>
@@ -208,6 +216,14 @@ const QuotationMaker: React.FC<QuotationMakerProps> = ({ t, shopDetails, data, i
                     <div class="terms">
                         <div class="terms-title">Terms & Conditions</div>
                         ${quoteSettings.terms.split('\n').map(t => `<div style="margin-bottom: 6px;">• ${t}</div>`).join('')}
+                        ${settings.showBankOnInvoice ? `
+                        <div style="margin-top: 20px; padding: 15px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; max-width: 350px;">
+                            <strong style="color: #0f172a; display: block; margin-bottom: 5px;">Bank Account Details (For Advance Payment):</strong>
+                            Name: ${settings.bankAccountName || '-'}<br/>
+                            A/C No: ${settings.bankAccountNumber || '-'}<br/>
+                            IFSC: ${settings.bankIFSC || '-'}
+                        </div>
+                        ` : ''}
                     </div>
                 </body>
             </html>

@@ -98,6 +98,7 @@ export const InvoicePro = ({ onBack, shopName, t, data, isDark, onUpdateData }) 
   };
 
   const generatePdfHtml = () => {
+      const settings = data?.settings || {};
       return `
           <html>
               <head>
@@ -105,7 +106,7 @@ export const InvoicePro = ({ onBack, shopName, t, data, isDark, onUpdateData }) 
                   <meta name="viewport" content="width=device-width, initial-scale=1.0">
                   <style>
                       body { font-family: 'Segoe UI', system-ui, sans-serif; padding: 20px; color: #1e293b; max-width: 800px; margin: 0 auto; background: #fff; }
-                      .header-banner { border-bottom: 3px solid #10b981; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end; }
+                      .header-banner { border-bottom: 3px solid #10b981; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-start; }
                       .shop-name { font-size: 36px; font-weight: 900; margin: 0; text-transform: uppercase; color: #0f172a; letter-spacing: -1px; }
                       .shop-tagline { font-size: 14px; color: #64748b; margin-top: 5px; font-weight: 500; }
                       .inv-title { font-size: 24px; font-weight: 800; color: #10b981; margin: 0; text-transform: uppercase; text-align: right; }
@@ -136,11 +137,16 @@ export const InvoicePro = ({ onBack, shopName, t, data, isDark, onUpdateData }) 
                   <div class="header-banner">
                       <div>
                           <h1 class="shop-name">${shopName || 'AUTO PARTS STORE'}</h1>
-                          <div class="shop-tagline">Retail Tax Invoice</div>
+                          ${settings.businessAddress ? `<div class="shop-tagline" style="white-space: pre-wrap;">${settings.businessAddress}</div>` : ''}
+                          <div class="shop-tagline">
+                              ${settings.phone ? `Phone: ${settings.phone} ` : ''}
+                              ${settings.email ? `| Email: ${settings.email}` : ''}
+                          </div>
+                          ${settings.gstNumber ? `<div style="font-weight: 700; margin-top: 10px; color: #0f172a;">GSTIN: ${settings.gstNumber}</div>` : ''}
                       </div>
                       <div>
                           <h2 class="inv-title">TAX INVOICE</h2>
-                          <div style="font-weight: 600; font-size: 14px; color: #0f172a; margin-top: 5px; text-align: right;">#${invoiceNumber}</div>
+                          <div style="font-weight: 600; font-size: 14px; color: #0f172a; margin-top: 5px; text-align: right;">#${settings.invoicePrefix || 'INV'}-${invoiceNumber}</div>
                           <div style="font-size: 14px; color: #64748b; text-align: right;">${date}</div>
                       </div>
                   </div>
@@ -221,6 +227,14 @@ export const InvoicePro = ({ onBack, shopName, t, data, isDark, onUpdateData }) 
                           <strong>Terms & Conditions</strong><br>
                           1. Goods once sold will not be taken back.<br>
                           2. Warranty strictly against manufacturing defects as per company policy.
+                          ${settings.showBankOnInvoice ? `
+                          <div style="margin-top: 15px; padding: 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px; max-width: 300px;">
+                              <strong style="color: #0f172a;">Bank Account Details:</strong><br/>
+                              Name: ${settings.bankAccountName || '-'}<br/>
+                              A/C No: ${settings.bankAccountNumber || '-'}<br/>
+                              IFSC: ${settings.bankIFSC || '-'}
+                          </div>
+                          ` : ''}
                       </div>
                       <div style="text-align: right;">
                           <div class="sign-line"></div>
