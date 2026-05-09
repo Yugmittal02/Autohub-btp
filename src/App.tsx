@@ -1692,6 +1692,9 @@ function DukanRegister() {
     // Stamp every write with lastUpdated for multi-device conflict tracking
     const payload = { ...newData, lastUpdated: Date.now() };
 
+    // Update local React state immediately so UI reflects changes without refresh
+    setData(payload);
+
     // Also update Dexie backup immediately so we never lose data
     try { await syncEngine.saveBackup(payload); } catch { /* noop */ }
 
