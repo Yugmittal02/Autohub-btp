@@ -12,6 +12,15 @@ if (rootElement) {
       <App />
     </StrictMode>,
   );
+
+  // Dismiss native splash screen after React mounts
+  requestAnimationFrame(() => {
+    const splash = document.getElementById('app-splash');
+    if (splash) {
+      splash.classList.add('hide');
+      setTimeout(() => splash.remove(), 500);
+    }
+  });
 }
 
 import { registerSW } from 'virtual:pwa-register';

@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -11,7 +11,7 @@
   <meta name="keywords" content="auto parts billing software, auto parts inventory app, garage management software, khata app, udhaar book, auto shop invoice maker, GST bill generator" />
   <meta name="author" content="Autohub" />
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
-  <link rel="canonical" href="https://autohub.app" />
+  <link rel="canonical" href="https://autohub-btp.vercel.app" />
 
   <!-- PWA Profile -->
   <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f8fafc" />
@@ -23,32 +23,51 @@
   <meta name="application-name" content="AutoHub" />
 
   <!-- Favicon & Icons -->
-  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
   <link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png" />
   <link rel="apple-touch-icon" sizes="512x512" href="/icon-512.png" />
 
   <!-- Preconnect for Performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://firestore.googleapis.com" />
+  <link rel="preconnect" href="https://autohub-btp.onrender.com" />
   <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://autohub.app/" />
+  <meta property="og:url" content="https://autohub-btp.vercel.app/" />
   <meta property="og:title" content="Autohub - Smart Auto Parts Billing & Inventory App" />
   <meta property="og:description" content="The ultimate garage and auto parts shop management tool. Generate GST bills, manage khata, track stock value, and build digital business cards." />
   <meta property="og:image" content="/icon-512.png" />
   <meta property="og:site_name" content="Autohub" />
 
   <meta property="twitter:card" content="summary_large_image" />
-  <meta property="twitter:url" content="https://autohub.app/" />
+  <meta property="twitter:url" content="https://autohub-btp.vercel.app/" />
   <meta property="twitter:title" content="Autohub - Smart Auto Parts Billing & Inventory App" />
   <meta property="twitter:description" content="The ultimate garage and auto parts shop management tool. Generate GST bills, manage khata, track stock value, and build digital business cards." />
   <meta property="twitter:image" content="/icon-512.png" />
+
+  <!-- Inline splash loader style -->
+  <style>
+    #app-splash{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0f172a;transition:opacity .4s}
+    #app-splash.hide{opacity:0;pointer-events:none}
+    #app-splash .logo{width:72px;height:72px;border-radius:18px;margin-bottom:16px;animation:pulse-glow 1.8s ease-in-out infinite}
+    #app-splash .bar-wrap{width:140px;height:4px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden}
+    #app-splash .bar{width:40%;height:100%;border-radius:4px;background:linear-gradient(90deg,#3b82f6,#60a5fa);animation:load-bar 1.2s ease-in-out infinite}
+    @keyframes load-bar{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
+    @keyframes pulse-glow{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.04)}}
+  </style>
 </head>
 <body class="antialiased font-sans webkit-tap-highlight-transparent bg-gray-50 dark:bg-slate-900 text-slate-900 dark:text-white transition-colors duration-200">
   <noscript>You need to enable JavaScript to run this app.</noscript>
+
+  <!-- Native splash screen while JS loads -->
+  <div id="app-splash">
+    <img class="logo" src="/icon-192.png" alt="AutoHub" />
+    <div class="bar-wrap"><div class="bar"></div></div>
+  </div>
+
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
 </body>

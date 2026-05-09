@@ -1,9 +1,33 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-/* src/index.css ke end mein add karein */
 
-/* Bolt/Stackblitz branding hide karne ke liye */
+/* Native app behavior */
+html, body {
+  overscroll-behavior: none; /* Prevent pull-to-refresh */
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Safe area padding for notched phones */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Smooth scrolling for all scrollable containers */
+* {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+/* Hide scrollbars on mobile for native feel */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar { display: none; }
+  * { scrollbar-width: none; }
+}
+
+/* Bolt/Stackblitz branding hide */
 a[href*="bolt.new"], 
 a[href*="stackblitz.com"],
 .sb-badge,
