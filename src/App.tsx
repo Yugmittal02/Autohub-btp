@@ -3397,13 +3397,11 @@ function DukanRegister() {
 
       {view === 'tools' && <ToolsHub onBack={() => { setView(previousView || 'settings'); setInitialNoteId(null); setActiveToolId(null); }} t={t} isDark={isDark} initialTool={activeToolId} initialNoteId={initialNoteId} pinnedTools={data.settings?.dashboardTools || ['crm', 'jobcard', 'vehicle', 'analytics', 'udhaar', 'supplier', 'warranty']} onTogglePin={handleTogglePin} shopDetails={data.settings} data={data} isStaffMode={isStaffMode} onUpdateData={async (newData) => {
         const updated = { ...data, ...newData };
-        setData(updated);
         await pushToFirebase(updated);
       }} />}
 
       {view === 'dailySales' && <DailySales onBack={() => setView('generalIndex')} t={t} isDark={isDark} data={data} onUpdateData={async (newData) => {
         const updated = { ...data, ...newData };
-        setData(updated);
         await pushToFirebase(updated);
       }} />}
 

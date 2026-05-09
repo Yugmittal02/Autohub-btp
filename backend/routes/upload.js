@@ -21,10 +21,26 @@ const storage = new CloudinaryStorage({
   }
 });
 
+const jwt = require('jsonwebtoken');
+const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key-change-it-in-prod';
+
+// Auth middleware
+const requireAuth = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.userId = decoded.userId;
+    next();
+  } catch (err) {
+    res.status(401).json({ error: 'Invalid token' });
+  }
+};
+
 const upload = multer({ storage: storage });
 
-// Upload Endpoint
-router.post('/bill', upload.single('bill'), async (req, res) => {
+// Upload Endpoint (protected)
+router.post('/bill', requireAuth, upload.single('bill'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No image uploaded' });
@@ -42,8 +58,8 @@ router.post('/bill', upload.single('bill'), async (req, res) => {
   }
 });
 
-// Delete Endpoint
-router.delete('/bill', async (req, res) => {
+// Delete Endpoint (protected)
+router.delete('/bill', requireAuth, async (req, res) => {
   try {
     const { path } = req.body; // path is the Cloudinary public_id
     if (!path) return res.status(400).json({ error: 'No path provided' });
