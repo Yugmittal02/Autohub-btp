@@ -36,11 +36,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/autohub')
 .catch(err => console.error('MongoDB connection error:', err));
 
 // Start Server
-const PORT = process.env.PORT;
-if (!PORT) {
-  console.error('PORT environment variable is not set.');
-  process.exit(1);
-}
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Backend server running. Started at: ${new Date().toISOString()} on port ${PORT}`);
 });
