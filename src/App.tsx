@@ -2623,7 +2623,11 @@ function DukanRegister() {
         <div className="absolute top-20 left-10 w-72 h-72 bg-blue-600 rounded-full blur-[120px] opacity-20"></div>
         <div className="absolute bottom-20 right-10 w-72 h-72 bg-purple-600 rounded-full blur-[120px] opacity-20"></div>
 
-        {toast && <ToastMessage message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+        {toastQueue.map((t, i) => (
+          <div key={t.id} style={{ position: 'fixed', top: `${20 + i * 60}px`, left: '50%', transform: 'translateX(-50%)', zIndex: 200 + i }}>
+            <ToastMessage message={t.message} type={t.type} onClose={() => removeToast(t.id)} />
+          </div>
+        ))}
         <div className="w-full max-w-sm bg-slate-800/80 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border border-slate-700/50 relative z-10">
           {/* Logo */}
           <div className="flex justify-center mb-6">
