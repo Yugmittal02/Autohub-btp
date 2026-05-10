@@ -2215,7 +2215,10 @@ function DukanRegister() {
 
   useEffect(() => {
     if ("Notification" in window) setNotifPermission(Notification.permission);
-    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); setDeferredPrompt(e); });
+    window.addEventListener('beforeinstallprompt', (e) => { 
+      // Do not prevent default so the browser can show its native mini-infobar automatically
+      setDeferredPrompt(e); 
+    });
   }, []);
 
   const _handleInstallClick = () => {
