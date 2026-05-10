@@ -272,7 +272,7 @@ export const DataImportExport: React.FC<{
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Autonex_Scanned_Vehicles_${Date.now()}.csv`;
+    a.download = `Krixov_Scanned_Vehicles_${Date.now()}.csv`;
     a.click();
   };
 

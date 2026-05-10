@@ -1,4 +1,4 @@
-// Global type declarations for AutoHub ERP
+// Global type declarations for Krixov ERP
 
 // Extend Window interface for Speech Recognition and custom properties
 interface Window {

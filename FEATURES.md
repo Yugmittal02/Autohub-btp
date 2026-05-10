@@ -1,4 +1,4 @@
-# Autohub Features Roadmap
+# Krixov Features Roadmap
 
 ## 🔴 Must-Have (Core MVP)
 1. **Multi-user Roles & Permissions:** Authentication and authorization for different roles (e.g., owner, manager, cashier).

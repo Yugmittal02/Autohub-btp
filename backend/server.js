@@ -18,8 +18,14 @@ const uploadRoutes = require('./routes/upload');
 const app = express();
 // Middleware
 const corsOrigin = process.env.CORS_ORIGIN;
+let allowedOrigins = true;
+if (corsOrigin) {
+  allowedOrigins = corsOrigin.split(',').map((origin) => origin.trim());
+  allowedOrigins.push('https://autohub.krixov.com', 'https://krixov.com');
+}
+
 app.use(cors({
-  origin: corsOrigin ? corsOrigin.split(',').map((origin) => origin.trim()) : true,
+  origin: allowedOrigins,
   credentials: true
 }));
 app.use(express.json({ limit: '50mb' }));
@@ -27,7 +33,7 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Health check endpoint (for Render monitoring)
 app.get('/', (req, res) => {
-  res.json({ status: 'ok', service: 'autohub-backend', uptime: process.uptime() });
+  res.json({ status: 'ok', service: 'krixov-backend', uptime: process.uptime() });
 });
 
 // Routes
@@ -36,7 +42,7 @@ app.use('/api/data', dataRoutes);
 app.use('/api/upload', uploadRoutes);
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/autohub')
+mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/krixov')
 .then(() => console.log('MongoDB Connected'))
 .catch(err => console.error('MongoDB connection error:', err));
 

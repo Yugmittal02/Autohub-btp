@@ -26,8 +26,8 @@ export default defineConfig({
       includeAssets: ['favicon.png', 'icon-192.png', 'icon-512.png'],
       manifest: {
         id: '/',
-        name: 'AutoHub ERP System',
-        short_name: 'AutoHub',
+        name: 'Krixov ERP System',
+        short_name: 'Krixov',
         description: 'Smart Inventory & Business Management System',
         start_url: '/',
         display: 'standalone',
@@ -126,7 +126,7 @@ export default defineConfig({
             handler: 'NetworkOnly',
             options: {
               backgroundSync: {
-                name: 'autohub-sync-queue',
+                name: 'krixov-sync-queue',
                 options: {
                   maxRetentionTime: 24 * 60 // 24 hours in minutes
                 }

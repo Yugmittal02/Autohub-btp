@@ -15,7 +15,7 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: 'autohub_bills',
+    folder: 'krixov_bills',
     format: async (req, file) => 'jpg',
     public_id: (req, file) => `${Date.now()}-${Math.round(Math.random() * 1000)}`
   }

@@ -221,13 +221,13 @@ export const AnalyticsDashboard = ({ onBack, isDark = false, data, t }: { onBack
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Autonex_Sales_${activeTab}_${baseDate.getTime()}.csv`;
+    a.download = `Krixov_Sales_${activeTab}_${baseDate.getTime()}.csv`;
     a.click();
   };
 
   const handleShare = async () => {
     const topItem = topItemsList[0] as any;
-    const text = `Autonex ${activeTab} Sales Report (${baseDate.toLocaleDateString()}):\nTotal: ₹${totalSales.toLocaleString()}\nTransactions: ${transactions}\nTop Product: ${topItem?.name || "N/A"}`;
+    const text = `Krixov ${activeTab} Sales Report (${baseDate.toLocaleDateString()}):\nTotal: ₹${totalSales.toLocaleString()}\nTransactions: ${transactions}\nTop Product: ${topItem?.name || "N/A"}`;
     if (navigator.share) {
       try { await navigator.share({ title: "Sales Report", text }); } catch(err) {}
     } else {

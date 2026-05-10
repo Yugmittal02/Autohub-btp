@@ -260,7 +260,7 @@ export const InvoicePro = ({ onBack, shopName, t, data, isDark, onUpdateData }) 
       }
   };
 
-  const shareText = `🧾 *Retail Invoice | ${shopName || "AUTOHUB"}*\nInv No: #${invoiceNumber}\nDate: ${date}\n\n${vehicleNumber ? `*Vehicle:* ${vehicleNumber}\n` : ''}*Billed To:* ${customerType}\n\n*Items:*\n${items.map(i => `▫️ ${i.name} x ${i.qty}`).join('\n')}\n\n*Grand Total:* ₹${total.toFixed(2)}\n*Payment Mode:* ${paymentMode} ✅\n\nThank you for shopping with us! Drive Safe! 🚗✨`;
+  const shareText = `🧾 *Retail Invoice | ${shopName || "KRIXOV"}*\nInv No: #${invoiceNumber}\nDate: ${date}\n\n${vehicleNumber ? `*Vehicle:* ${vehicleNumber}\n` : ''}*Billed To:* ${customerType}\n\n*Items:*\n${items.map(i => `▫️ ${i.name} x ${i.qty}`).join('\n')}\n\n*Grand Total:* ₹${total.toFixed(2)}\n*Payment Mode:* ${paymentMode} ✅\n\nThank you for shopping with us! Drive Safe! 🚗✨`;
 
   const handleShareWhatsapp = () => {
     let url = mobile && mobile.length >= 10
@@ -388,7 +388,7 @@ export const InvoicePro = ({ onBack, shopName, t, data, isDark, onUpdateData }) 
             <div className={`p-5 rounded-3xl ${isDark ? 'bg-slate-900/50 border border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.4)]' : 'bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]'} backdrop-blur-sm relative overflow-hidden flex flex-col justify-between`}>
               <div className="absolute -right-4 -bottom-4 opacity-5"><ShieldCheck size={100} /></div>
               <div>
-                <h2 className="text-2xl font-black text-emerald-500 uppercase tracking-wide mb-1">{shopName || "AUTONEX"}</h2>
+                <h2 className="text-2xl font-black text-emerald-500 uppercase tracking-wide mb-1">{shopName || "KRIXOV"}</h2>
                 <p className="text-sm font-bold text-slate-500 tracking-wider">RETAIL INVOICE</p>
               </div>
               <div className="flex flex-wrap gap-2 mt-4 relative z-10">

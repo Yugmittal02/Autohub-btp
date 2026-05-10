@@ -74,7 +74,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
                 <div className="mt-8 flex items-center justify-center gap-2 text-green-600 bg-green-50 p-2 rounded-full px-4 border border-green-200">
                     <ShieldCheck size={16} />
-                    <span className="text-xs font-bold uppercase tracking-widest">{t("Secured by Autonex")}</span>
+                    <span className="text-xs font-bold uppercase tracking-widest">{t("Secured by Krixov")}</span>
                 </div>
             </div>
         );
@@ -271,7 +271,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         <Zap size={20} className="text-white" />
                                     </div>
                                     <div>
-                                        <p className="font-bold text-sm">{data.settings?.shopName || 'Autonex'}</p>
+                                        <p className="font-bold text-sm">{data.settings?.shopName || 'Krixov'}</p>
                                         <p className="text-[10px] opacity-50">v3.0 Pro Edition</p>
                                     </div>
                                 </div>
@@ -301,7 +301,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     <div className="w-5 h-5 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                                         <Zap size={10} className="text-white" />
                                     </div>
-                                    <span className="font-bold text-xs">Autonex</span>
+                                    <span className="font-bold text-xs">Krixov</span>
                                     <CheckCircle size={12} className="text-blue-500" />
                                 </div>
                                 <p className="text-[8px] mt-2 opacity-40">  2025 All Rights Reserved</p>

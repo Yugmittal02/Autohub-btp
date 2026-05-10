@@ -81,7 +81,7 @@ const askAIAssistant = async (question: string, language: string = 'en'): Promis
   const responseLanguage = isHindiQuestion ? 'hi' : language;
 
   // 2. Define the System Prompt (AI's Personality)
-  const systemPrompt = `You are "Autonex AI", a smart and friendly shop assistant developed by Autonex. 
+  const systemPrompt = `You are "Krixov AI", a smart and friendly shop assistant developed by Krixov. 
     You manage an auto parts shop inventory but you are also very intelligent about general topics.
     
     RULES:
@@ -228,7 +228,7 @@ const getSmartLocalResponse = (question: string, lang: string): string => {
 
   // Who are you
   if (/\b(who are you|kaun ho|tum kaun|your name|naam kya)\b/i.test(q)) {
-    return isHindi ? '??? Autonex AI ???, ???? ??????? ??????? ?????????!' : 'I am Autonex AI, your smart business assistant!';
+    return isHindi ? '??? Krixov AI ???, ???? ??????? ??????? ?????????!' : 'I am Krixov AI, your smart business assistant!';
   }
 
   // Thank you
@@ -434,7 +434,7 @@ const GhostMic = ({ inventory, pages, onClose, onNavigate, allowAI = true, useFu
             <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
               <Zap size={14} className="text-white" />
             </div>
-            <span className="text-xs font-bold text-purple-300 uppercase">Autonex AI</span>
+            <span className="text-xs font-bold text-purple-300 uppercase">Krixov AI</span>
           </div>
           <p className="text-white text-base leading-relaxed">{aiResponse}</p>
         </div>
@@ -1067,7 +1067,7 @@ const LegalModal = ({ isOpen, onClose, type, t, isDark }) => {
         {type === 'privacy' ? (
           <div className="space-y-4 text-sm opacity-80 leading-relaxed">
             <p><strong>Last Updated:</strong> January 2026</p>
-            <p>Welcome to <strong>Autonex</strong>, a smart auto parts inventory management application.</p>
+            <p>Welcome to <strong>Krixov</strong>, a smart auto parts inventory management application.</p>
 
             <div className="mt-4">
               <p className="font-bold text-base mb-2">1. Data Collection & Storage</p>
@@ -1099,11 +1099,11 @@ const LegalModal = ({ isOpen, onClose, type, t, isDark }) => {
 
             <div className="mt-4">
               <p className="font-bold text-base mb-2">5. Liability Disclaimer</p>
-              <p>  Autonex is a digital record-keeping tool and is not responsible for physical stock discrepancies.</p>
+              <p>  Krixov is a digital record-keeping tool and is not responsible for physical stock discrepancies.</p>
               <p>  Always verify physical stock counts periodically.</p>
             </div>
 
-            <p className="mt-4 pt-4 border-t text-xs">For legal inquiries or data requests, contact: support@autonex.in</p>
+            <p className="mt-4 pt-4 border-t text-xs">For legal inquiries or data requests, contact: support@krixov.in</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -1145,7 +1145,7 @@ const LegalModal = ({ isOpen, onClose, type, t, isDark }) => {
             </div>
             <div className="border rounded-lg p-3">
               <p className="font-bold text-blue-500 mb-1">Q: I forgot my password. What do I do?</p>
-              <p className="text-sm opacity-80">A: Contact Autonex support with your Customer ID (found in Settings ? Profile) to reset your password.</p>
+              <p className="text-sm opacity-80">A: Contact Krixov support with your Customer ID (found in Settings ? Profile) to reset your password.</p>
             </div>
           </div>
         )}
@@ -1396,7 +1396,7 @@ const defaultData: AppDataType = {
   salesEvents: [],
   scannedVehicles: [],
   gpsReminders: [],
-  settings: { limit: 5, theme: 'light', accentColor: 'blue', shakeToSearch: true, productPassword: '0000', shopName: 'Autonex', pinnedTools: [] },
+  settings: { limit: 5, theme: 'light', accentColor: 'blue', shakeToSearch: true, productPassword: '0000', shopName: 'Krixov', pinnedTools: [] },
   appStatus: 'active',
   credentials: { email: '', password: '' }
 };
@@ -1419,7 +1419,7 @@ function DukanRegister() {
   const [dbLoading, setDbLoading] = useState(false);
   const [fbDocId, setFbDocId] = useState(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [isStaffMode, setIsStaffMode] = useState(localStorage.getItem('autonex_staff_mode') === 'true');
+  const [isStaffMode, setIsStaffMode] = useState(localStorage.getItem('krixov_staff_mode') === 'true');
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [rolePinInput, setRolePinInput] = useState('');
 
@@ -1619,7 +1619,7 @@ function DukanRegister() {
   }, [data.pages, activePageId]);
 
   useEffect(() => {
-    const token = localStorage.getItem('autohub_token');
+    const token = localStorage.getItem('krixov_token');
     if (token) {
       // Verify token
       fetch(`${API_BASE}/api/auth/verify`, {
@@ -1630,7 +1630,7 @@ function DukanRegister() {
         if (data.email) {
           setUser(data);
         } else {
-          localStorage.removeItem('autohub_token');
+          localStorage.removeItem('krixov_token');
           setUser(null);
         }
         setAuthLoading(false);
@@ -1662,7 +1662,7 @@ function DukanRegister() {
 
     // Initial data fetch
     fetch(`${API_BASE}/api/data/sync`, {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('autohub_token')}` }
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('krixov_token')}` }
     })
     .then(res => res.json())
     .then(cloudData => {
@@ -1671,7 +1671,7 @@ function DukanRegister() {
       
       if (!cloudData.settings) cloudData.settings = defaultData.settings;
       if (!cloudData.settings.pinnedTools) cloudData.settings.pinnedTools = [];
-      if (!cloudData.settings.shopName) cloudData.settings.shopName = 'Autonex';
+      if (!cloudData.settings.shopName) cloudData.settings.shopName = 'Krixov';
       if (!cloudData.appStatus) cloudData.appStatus = 'active';
 
       if (!Array.isArray(cloudData.pages)) cloudData.pages = [];
@@ -1756,7 +1756,7 @@ function DukanRegister() {
       
       if (!res.ok) throw new Error(data.error || 'Authentication failed');
       
-      localStorage.setItem('autohub_token', data.token);
+      localStorage.setItem('krixov_token', data.token);
       setUser({ email: data.email, uid: data.uid });
       
       if (isRegistering) {
@@ -1769,7 +1769,7 @@ function DukanRegister() {
 
   const handleLogout = () => {
     triggerConfirm("Logout?", "Are you sure you want to Logout?", true, () => {
-      localStorage.removeItem('autohub_token');
+      localStorage.removeItem('krixov_token');
       setUser(null);
       setData(defaultData);
       setEmail(''); setPassword('');
@@ -1797,7 +1797,7 @@ function DukanRegister() {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('autohub_token')}`
+              'Authorization': `Bearer ${localStorage.getItem('krixov_token')}`
             },
             body: JSON.stringify(payload)
           });
@@ -1841,7 +1841,7 @@ function DukanRegister() {
            method: 'POST',
            headers: {
              'Content-Type': 'application/json',
-             'Authorization': `Bearer ${localStorage.getItem('autohub_token')}`
+             'Authorization': `Bearer ${localStorage.getItem('krixov_token')}`
            },
            body: JSON.stringify(payload)
         });
@@ -2047,7 +2047,7 @@ function DukanRegister() {
             const res = await fetch(`${API_BASE}/api/upload/bill`, {
              method: 'POST',
              headers: {
-               'Authorization': `Bearer ${localStorage.getItem('autohub_token')}`
+               'Authorization': `Bearer ${localStorage.getItem('krixov_token')}`
              },
              body: formData
             });
@@ -2123,7 +2123,7 @@ function DukanRegister() {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('autohub_token')}`
+            'Authorization': `Bearer ${localStorage.getItem('krixov_token')}`
           },
           body: JSON.stringify({ path: storagePath })
         });
@@ -2600,7 +2600,7 @@ function DukanRegister() {
           </div>
 
           <div className="text-center">
-            <h1 className="text-3xl font-black tracking-widest text-white mb-2">AUTONEX</h1>
+            <h1 className="text-3xl font-black tracking-widest text-white mb-2">KRIXOV</h1>
             <p className="text-slate-400 text-sm font-medium">Smart Auto Parts Management</p>
           </div>
 
@@ -2635,7 +2635,7 @@ function DukanRegister() {
               <Store size={32} className="text-white" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-center mb-1">Welcome to Autonex</h1>
+          <h1 className="text-2xl font-bold text-center mb-1">Welcome to Krixov</h1>
           <p className="text-center text-slate-400 mb-8 text-sm">Sign in to manage your inventory</p>
 
           <form onSubmit={handleAuth} className="space-y-4">
@@ -2697,7 +2697,7 @@ function DukanRegister() {
           </div>
           <div>
             <h1 className="text-[20px] font-bold text-[#0F1724] dark:text-white leading-tight">
-              {data.settings.shopName || "Autonex"}
+              {data.settings.shopName || "Krixov"}
             </h1>
             <p className="text-[12px] font-semibold text-[#556077] dark:text-slate-400">Smart Auto Parts Management</p>
           </div>
@@ -3467,7 +3467,7 @@ function DukanRegister() {
               <div className="p-5 space-y-4 max-h-[60vh] overflow-y-auto">
                  <div className="border-l-4 border-blue-500 pl-4 py-1">
                    <div className="flex justify-between items-start mb-1">
-                     <h4 className="font-bold text-[14px] text-[#0F1724] dark:text-white">Welcome to Autohub Pro</h4>
+                     <h4 className="font-bold text-[14px] text-[#0F1724] dark:text-white">Welcome to Krixov Pro</h4>
                      <span className="text-[10px] text-gray-400">Just now</span>
                    </div>
                    <p className="text-[13px] text-gray-500 dark:text-gray-400 leading-relaxed">Inventory tools with dynamic drop-downs and realtime auto-sync features are now live!</p>
@@ -3756,7 +3756,7 @@ function DukanRegister() {
                   setData(newData);
                   pushToFirebase(newData);
                   setIsStaffMode(true);
-                  localStorage.setItem('autonex_staff_mode', 'true');
+                  localStorage.setItem('krixov_staff_mode', 'true');
                   setShowRoleModal(false);
                   haptic([50, 30, 50]);
                   showToast("👷 Staff Mode Activated", "info");
@@ -3765,7 +3765,7 @@ function DukanRegister() {
                   const currentPin = data.settings.productPassword || '0000';
                   if (rolePinInput === currentPin || rolePinInput === '123456') {
                     setIsStaffMode(false);
-                    localStorage.setItem('autonex_staff_mode', 'false');
+                    localStorage.setItem('krixov_staff_mode', 'false');
                     setRolePinInput('');
                     setShowRoleModal(false);
                     haptic([50, 30, 50]);

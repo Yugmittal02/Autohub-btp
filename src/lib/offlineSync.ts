@@ -16,12 +16,12 @@ export interface LocalBackup {
   timestamp: number;
 }
 
-export class AutoHubStorage extends Dexie {
+export class KrixovStorage extends Dexie {
   pendingWrites!: Table<PendingWrite, number>;
   backups!: Table<LocalBackup, string>;
 
   constructor() {
-    super('AutoHubOfflineDB');
+    super('KrixovOfflineDB');
     this.version(1).stores({
       pendingWrites: '++id, uuid, timestamp, attempts',
       backups: 'id'
@@ -29,7 +29,7 @@ export class AutoHubStorage extends Dexie {
   }
 }
 
-export const offlineDb = new AutoHubStorage();
+export const offlineDb = new KrixovStorage();
 
 // background sync mechanism for handling API failures
 export class OfflineSyncEngine {
@@ -75,7 +75,7 @@ export class OfflineSyncEngine {
     this.syncInProgress = true;
 
     try {
-      const token = localStorage.getItem('autohub_token');
+      const token = localStorage.getItem('krixov_token');
       if (!token) return; // No user logged in
 
       const tasks = await offlineDb.pendingWrites.orderBy('timestamp').toArray();
