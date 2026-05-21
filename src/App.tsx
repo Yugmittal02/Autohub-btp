@@ -28,6 +28,7 @@ import { AIEngine, Trie, PriorityQueue, BloomFilter, fuzzySearch, LRUCache } fro
 import { translateWithGoogle, translateWithMyMemory, transliterateWithGoogle, convertToHindiFallback, translationCache, sanitizeDisplayText } from './lib/translation';
 import { performSmartSearch } from './lib/search';
 import { exactDictionary, synonymMap, soundMap } from './data/dictionaries';
+import { AdminPanel } from './components/AdminPanel';
 import ToolsHub from './components/ToolsHub';
 import { ItemsPage } from './components/ItemsPage';
 import { DailySales } from './components/DailySales';
@@ -1411,9 +1412,7 @@ function DukanRegister() {
 
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isRegistering, setIsRegistering] = useState(false);
+  const [pin, setPin] = useState('');
 
   const [data, setData] = useState<AppDataType>(defaultData);
   const [dbLoading, setDbLoading] = useState(false);
@@ -1625,9 +1624,12 @@ function DukanRegister() {
       fetch(`${API_BASE}/api/auth/verify`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('Token verification failed');
+        return res.json();
+      })
       .then(data => {
-        if (data.email) {
+        if (data.uid) {
           setUser(data);
         } else {
           localStorage.removeItem('krixov_token');
@@ -1742,26 +1744,22 @@ function DukanRegister() {
 
   const handleAuth = async (e) => {
     e.preventDefault();
-    if (!email || !password) { showToast("Please fill details", "error"); return; }
+    if (!pin || pin.length !== 12) { showToast("Please enter a valid 12-digit PIN", "error"); return; }
     try {
-      const endpoint = isRegistering ? '/api/auth/register' : '/api/auth/login';
+      const endpoint = '/api/auth/login';
       const res = await fetch(`${API_BASE}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ pin })
       });
       const data = await res.json();
       
       if (!res.ok) throw new Error(data.error || 'Authentication failed');
       
       localStorage.setItem('krixov_token', data.token);
-      setUser({ email: data.email, uid: data.uid });
-      
-      if (isRegistering) {
-        showToast("Account Created!");
-      }
+      setUser({ pin: data.pin, uid: data.uid, role: data.role });
     } catch (error) { 
       showToast(error.message, "error"); 
     }
@@ -1772,7 +1770,7 @@ function DukanRegister() {
       localStorage.removeItem('krixov_token');
       setUser(null);
       setData(defaultData);
-      setEmail(''); setPassword('');
+      setPin('');
     });
   };
 
@@ -2639,27 +2637,17 @@ function DukanRegister() {
             </div>
           </div>
           <h1 className="text-2xl font-bold text-center mb-1">Welcome to Krixov</h1>
-          <p className="text-center text-slate-400 mb-8 text-sm">Sign in to manage your inventory</p>
+          <p className="text-center text-slate-400 mb-8 text-sm">Enter your 12-digit PIN to access your shop</p>
 
           <form onSubmit={handleAuth} className="space-y-4">
             <div>
-              <label className="text-xs text-slate-400 font-bold ml-1 uppercase">Email Address</label>
-              <input type="email" required className="w-full p-3 bg-slate-900 rounded-xl border border-slate-600 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all outline-none" placeholder="shop@gmail.com" value={email} onChange={e => setEmail(e.target.value)} />
+              <label className="text-xs text-slate-400 font-bold ml-1 uppercase">Access PIN</label>
+              <input type="text" maxLength={12} required className="w-full p-3 text-center tracking-[0.2em] font-mono text-xl bg-slate-900 rounded-xl border border-slate-600 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all outline-none" placeholder="XXXX-XXXX-XXXX" value={pin} onChange={e => setPin(e.target.value.replace(/\D/g, ''))} />
             </div>
-            <div>
-              <label className="text-xs text-slate-400 font-bold ml-1 uppercase">Password</label>
-              <input type="password" required className="w-full p-3 bg-slate-900 rounded-xl border border-slate-600 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all outline-none" placeholder="******" value={password} onChange={e => setPassword(e.target.value)} />
-            </div>
-            <button type="submit" className="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold shadow-lg shadow-blue-600/30 active:scale-95 transition-all">
-              {isRegistering ? "Create Shop Account" : "Secure Login"}
+            <button type="submit" className="w-full py-4 mt-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold shadow-lg shadow-blue-600/30 active:scale-95 transition-all">
+              Secure Login
             </button>
           </form>
-
-          <div className="mt-6 text-center">
-            <button onClick={() => setIsRegistering(!isRegistering)} className="text-blue-400 font-bold ml-2 hover:text-blue-300 transition-colors text-sm">
-              {isRegistering ? "Already have an account? Login" : "New here? Create Account"}
-            </button>
-          </div>
         </div>
       </div>
     );
@@ -2688,6 +2676,31 @@ function DukanRegister() {
         </div>
       </div>
     );
+  }
+
+  if (window.location.pathname === '/admin') {
+    if (user.role === 'admin') {
+      return <AdminPanel onBack={() => { window.location.href = '/'; }} t={t} isDark={isDark} deferredPrompt={deferredPrompt} setDeferredPrompt={setDeferredPrompt} />;
+    } else {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
+          <div className="text-center p-8 bg-slate-800 rounded-2xl shadow-2xl max-w-sm w-full border border-slate-700">
+            <h2 className="text-3xl font-black mb-2 text-red-500">Access Denied</h2>
+            <p className="text-slate-300 mb-6 font-medium">You do not have admin privileges. You are currently logged in with a standard user PIN.</p>
+            <div className="flex flex-col gap-3">
+              <button onClick={() => { window.location.href = '/'; }} className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-500 transition-colors rounded-xl font-bold">Return to Shop</button>
+              <button onClick={() => {
+                localStorage.removeItem('krixov_token');
+                setUser(null);
+                setPin('');
+              }} className="w-full px-6 py-3 bg-slate-700 hover:bg-red-600 transition-colors rounded-xl font-bold text-white flex items-center justify-center gap-2">
+                <LogOut size={18} /> Switch to Admin Account
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
   }
 
     const renderGeneralIndex = () => (

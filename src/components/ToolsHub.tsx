@@ -23,6 +23,7 @@ import { DataImportExport } from './tools/DataImportExport';
 import { VehicleMaster } from './tools/VehicleMaster';
 import { ServiceJobCards } from './tools/ServiceJobCards';
 import { CustomerCRM } from './tools/CustomerCRM';
+import { ExcelPro } from './tools/ExcelPro';
 
 // Assuming basic translate helper is available, or passed as prop. 
 // The original code used `translateWithGoogle` global or imported? 
@@ -150,6 +151,7 @@ const ToolsHub: React.FC<ToolsHubProps> = ({ onBack, t, isDark, initialTool = nu
         { id: 'jobcard', name: 'Job Cards', icon: <FileText size={24} />, color: 'bg-orange-100 text-orange-600', desc: 'Service & Repairs' },
         { id: 'vehicle', name: 'Vehicle Master', icon: <Activity size={24} />, color: 'bg-blue-100 text-blue-600', desc: 'Customer Vehicles' },
         { id: 'crm', name: 'Customer CRM', icon: <Users size={24} />, color: 'bg-blue-100 text-blue-600', desc: 'Client Directory' },
+        { id: 'excel', name: 'Excel Pro', icon: <FileText size={24} />, color: 'bg-green-100 text-green-600', desc: 'Custom Spreadsheet' },
     ];
 
 // Invoice Logic
@@ -342,6 +344,8 @@ const ToolsHub: React.FC<ToolsHubProps> = ({ onBack, t, isDark, initialTool = nu
             }
             case 'invoice':
                 return <InvoicePro onBack={handleBackFromTool} shopName={shopDetails.shopName} t={t} data={data} onUpdateData={onUpdateData} isDark={isDark} />;
+            case 'excel':
+                return <ExcelPro onBack={handleBackFromTool} isDark={isDark} t={t} />;
             default: return null;
         }
     };

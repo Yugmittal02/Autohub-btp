@@ -5,13 +5,22 @@ const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key-change-it-in-prod';
 
+const User = require('../models/User');
+
 // Middleware to verify token
-const requireAuth = (req, res, next) => {
+const requireAuth = async (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(401).json({ error: 'Unauthorized' });
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
+    const user = await User.findById(decoded.userId);
+    
+    if (!user) return res.status(401).json({ error: 'User not found' });
+    if (user.status === 'suspended' || user.status === 'banned') {
+      return res.status(401).json({ error: 'Account is no longer active' });
+    }
+    
     req.userId = decoded.userId;
     next();
   } catch (err) {
